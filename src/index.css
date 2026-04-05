@@ -120,6 +120,12 @@
   .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background; }
 }
 
+/* ── OTT hero utilities ── */
+.hero-play-btn:hover {
+  background: rgba(255,255,255,0.22);
+  box-shadow: 0 0 60px rgba(255,255,255,0.2), 0 0 24px rgba(255,255,255,0.1);
+}
+
 /* ── Keyframes ── */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
@@ -152,12 +158,27 @@
   100% { transform: scale(1)    translateX(0)    translateY(0); }
 }
 
+@keyframes heroContentEnter {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Animation classes ── */
 .animate-fade-up   { animation: fadeUp   0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-fade-in   { animation: fadeIn   0.25s ease forwards; }
 .animate-scale-in  { animation: scaleIn  0.22s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-slide-up  { animation: slideUp  0.4s  cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-ken-burns { animation: kenBurns 14s   ease-in-out infinite; }
+
+/* Hero content stagger */
+.hero-content-enter > * {
+  opacity: 0;
+  animation: heroContentEnter 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.hero-content-enter > *:nth-child(1) { animation-delay: 350ms; }
+.hero-content-enter > *:nth-child(2) { animation-delay: 430ms; }
+.hero-content-enter > *:nth-child(3) { animation-delay: 510ms; }
+.hero-content-enter > *:nth-child(4) { animation-delay: 590ms; }
 
 /* ── Stagger children ── */
 .stagger > * { opacity: 0; animation: fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }

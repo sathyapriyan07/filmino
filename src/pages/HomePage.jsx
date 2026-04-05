@@ -1,223 +1,84 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Play, Star, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Gem, Tv, Film, Sparkles, Clock, ThumbsUp, Info } from 'lucide-react'
+import {
+  TrendingUp, Tv, Film, Star, Gem, Clock, Sparkles, ThumbsUp, Clapperboard
+} from 'lucide-react'
 import { movieService, seriesService } from '../services/media'
 import { sectionService } from '../services/admin'
 import { supabase } from '../services/supabase'
-import { watchlistService } from '../services/social'
 import { useAuthStore } from '../store/authStore'
 import { usePersonalization } from '../hooks/usePersonalization'
 import { getRecentlyViewed } from '../hooks/useRecentlyViewed'
-import MediaRow from '../components/MediaRow'
-import Top10List from '../components/Top10List'
-import SearchBar from '../components/SearchBar'
-import { Skeleton, Badge, Button } from '../components/ui'
-import { formatYear, getGenreNames, cn } from '../utils/helpers'
+import HeroBanner from '../components/HeroBanner'
+import MovieRow from '../components/MovieRow'
+import { Button } from '../components/ui'
 
-/* ── Hero Slide ── */
-function HeroSlide({ item, type, active }) {
-  const title  = type === 'movie' ? item.title : item.name
-  const date   = type === 'movie' ? item.release_date : item.first_air_date
-  const genres = getGenreNames(item.genres)
-  const { user } = useAuthStore()
-  const [inWl, setInWl] = useState(false)
-  const [wlLoading, setWlLoading] = useState(false)
-
-  const toggleWl = async (e) => {
-    e.preventDefault()
-    if (!user || wlLoading) return
-    setWlLoading(true)
-    try {
-      if (inWl) { await watchlistService.remove(user.id, item.id, type); setInWl(false) }
-      else       { await watchlistService.add(user.id, item.id, type);    setInWl(true)  }
-    } finally { setWlLoading(false) }
-  }
-
-  return (
-    <div className={cn(
-      'absolute inset-0 transition-opacity duration-700 ease-smooth',
-      active ? 'opacity-100' : 'opacity-0 pointer-events-none'
-    )}>
-      {/* Backdrop */}
-      <div className="absolute inset-0 overflow-hidden">
-        <img
-          src={item.backdrop || item.poster}
-          alt={title}
-          className={cn('w-full h-full object-cover', active && 'animate-ken-burns')}
-        />
-        {/* Cinematic gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
-      </div>
-
-      {/* Center play button (mobile-first) */}
-      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-        <Link
-          to={`/${type}/${item.id}`}
-          className={cn(
-            'pointer-events-auto flex items-center justify-center',
-            'h-16 w-16 rounded-full bg-white/15 backdrop-blur-md border border-white/30',
-            'hover:bg-white/25 hover:scale-110 active:scale-95',
-            'transition-all duration-300 ease-smooth shadow-[0_0_40px_rgba(255,255,255,0.15)]',
-            active ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-          )}
-          style={{ transitionDelay: active ? '300ms' : '0ms' }}
-        >
-          <Play className="h-7 w-7 text-white fill-white ml-1" />
-        </Link>
-      </div>
-
-      {/* Bottom content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-4 sm:px-6 lg:px-10 pb-24 md:pb-20">
-        <div className={cn('max-w-xl', active && 'stagger')}>
-          {/* Badges */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <Badge variant="glass" className="gap-1.5 text-xs">
-              {type === 'movie' ? <Film className="h-3 w-3" /> : <Tv className="h-3 w-3" />}
-              {type === 'movie' ? 'Movie' : 'Series'}
-            </Badge>
-            {genres.slice(0, 2).map(g => (
-              <Badge key={g} variant="glass" className="text-xs">{g}</Badge>
-            ))}
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.02] tracking-tight mb-2">
-            {title}
-          </h1>
-
-          {/* Meta */}
-          <div className="flex items-center gap-3 text-sm mb-3">
-            {item.vote_average > 0 && (
-              <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-                <Star className="h-4 w-4 fill-current" />
-                {item.vote_average.toFixed(1)}
-                <span className="text-white/40 font-normal text-xs">/ 10</span>
-              </span>
-            )}
-            <span className="text-white/30">·</span>
-            <span className="text-white/60">{formatYear(date)}</span>
-          </div>
-
-          {/* Overview */}
-          <p className="text-white/65 text-sm leading-relaxed line-clamp-2 mb-5 max-w-lg hidden sm:block">
-            {item.overview}
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-wrap gap-2.5">
-            <Link to={`/${type}/${item.id}`}>
-              <Button size="lg" className="bg-white text-black hover:bg-white/92 shadow-none font-bold gap-2 rounded-xl">
-                <Play className="h-4 w-4 fill-black" />
-                View Details
-              </Button>
-            </Link>
-            {user && (
-              <Button variant="glass" size="lg" onClick={toggleWl} disabled={wlLoading} className="gap-2 font-semibold">
-                {inWl
-                  ? <BookmarkCheck className="h-4 w-4 text-primary" />
-                  : <Bookmark className="h-4 w-4" />
-                }
-                {inWl ? 'Saved' : 'Watchlist'}
-              </Button>
-            )}
-            <Link to={`/${type}/${item.id}`}>
-              <Button variant="glass" size="lg" className="gap-2 font-semibold">
-                <Info className="h-4 w-4" />
-                <span className="hidden sm:inline">More Info</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── Hero Skeleton ── */
-function HeroSkeleton() {
-  return (
-    <div className="relative h-[92vh] min-h-[600px] bg-black overflow-hidden">
-      <div className="absolute inset-0 shimmer opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-      <div className="absolute bottom-24 left-4 sm:left-10 space-y-4 max-w-lg">
-        <Skeleton className="h-5 w-28 rounded-full" />
-        <Skeleton className="h-14 w-72 md:w-[420px] rounded-2xl" />
-        <Skeleton className="h-4 w-40 rounded-lg" />
-        <div className="flex gap-3 pt-1">
-          <Skeleton className="h-11 w-36 rounded-xl" />
-          <Skeleton className="h-11 w-36 rounded-xl" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── Main ── */
 export default function HomePage() {
   const { user } = useAuthStore()
   const { recommended } = usePersonalization(user?.id)
-  const [featured,       setFeatured]       = useState([])
-  const [heroIdx,        setHeroIdx]        = useState(0)
-  const [sections,       setSections]       = useState([])
-  const [sectionMedia,   setSectionMedia]   = useState({})
-  const [trendingMovies, setTrendingMovies] = useState([])
-  const [trendingSeries, setTrendingSeries] = useState([])
-  const [hiddenGems,     setHiddenGems]     = useState([])
+
+  const [loading,        setLoading]        = useState(true)
+  const [heroItems,      setHeroItems]      = useState([])
+  const [trendMovies,    setTrendMovies]    = useState([])
+  const [trendSeries,    setTrendSeries]    = useState([])
   const [topRated,       setTopRated]       = useState([])
+  const [hiddenGems,     setHiddenGems]     = useState([])
   const [underrated,     setUnderrated]     = useState([])
   const [recentlyViewed, setRecentlyViewed] = useState([])
-  const [loading,        setLoading]        = useState(true)
-  const autoRef = useRef(null)
+  const [sections,       setSections]       = useState([])
+  const [sectionMedia,   setSectionMedia]   = useState({})
 
-  useEffect(() => { loadData() }, [])
   useEffect(() => {
     const rv = getRecentlyViewed()
     if (rv.length) setRecentlyViewed(rv)
   }, [])
 
-  async function loadData() {
+  useEffect(() => { fetchAll() }, [])
+
+  async function fetchAll() {
     try {
       const [movies, series, sects, gems, top, under] = await Promise.all([
         movieService.getTrending(8),
         seriesService.getTrending(8),
         sectionService.getActiveSections(),
         supabase.from('movies')
-          .select('id,title,poster,vote_average,release_date,genres,popularity')
+          .select('id,title,poster,backdrop,vote_average,release_date,genres,popularity')
           .gte('vote_average', 7.5).lte('popularity', 30)
           .order('vote_average', { ascending: false }).limit(10),
         supabase.from('movies')
-          .select('id,title,poster,vote_average,release_date,genres')
+          .select('id,title,poster,backdrop,vote_average,release_date,genres')
           .gte('vote_average', 8.0)
           .order('vote_average', { ascending: false }).limit(12),
         supabase.from('movies')
-          .select('id,title,poster,vote_average,release_date,genres,vote_count')
+          .select('id,title,poster,backdrop,vote_average,release_date,genres,vote_count')
           .gte('vote_average', 7.0).lte('vote_count', 500)
           .order('vote_average', { ascending: false }).limit(10),
       ])
 
-      const heroItems = [
+      const hero = [
         ...movies.filter(m => m.backdrop).slice(0, 4).map(m => ({ ...m, _type: 'movie' })),
         ...series.filter(s => s.backdrop).slice(0, 2).map(s => ({ ...s, _type: 'series' })),
       ]
-      setFeatured(heroItems)
-      setTrendingMovies(movies.map(m => ({ ...m, _type: 'movie' })))
-      setTrendingSeries(series.map(s => ({ ...s, _type: 'series' })))
-      setHiddenGems((gems.data || []).map(m => ({ ...m, _type: 'movie' })))
+
+      setHeroItems(hero)
+      setTrendMovies(movies.map(m => ({ ...m, _type: 'movie' })))
+      setTrendSeries(series.map(s => ({ ...s, _type: 'series' })))
       setTopRated((top.data || []).map(m => ({ ...m, _type: 'movie' })))
+      setHiddenGems((gems.data || []).map(m => ({ ...m, _type: 'movie' })))
       setUnderrated((under.data || []).map(m => ({ ...m, _type: 'movie' })))
       setSections(sects)
 
+      // Resolve section items
       const mediaMap = {}
-      for (const section of sects) {
-        const items = section.section_items || []
-        const movieIds  = items.filter(i => i.media_type === 'movie').map(i => i.media_id)
-        const seriesIds = items.filter(i => i.media_type === 'series').map(i => i.media_id)
+      for (const sec of sects) {
+        const items = sec.section_items || []
+        const mIds = items.filter(i => i.media_type === 'movie').map(i => i.media_id)
+        const sIds = items.filter(i => i.media_type === 'series').map(i => i.media_id)
         const [md, sd] = await Promise.all([
-          movieIds.length  > 0 ? supabase.from('movies').select('id,title,poster,vote_average,release_date,genres').in('id', movieIds)  : { data: [] },
-          seriesIds.length > 0 ? supabase.from('series').select('id,name,poster,vote_average,first_air_date,genres').in('id', seriesIds) : { data: [] },
+          mIds.length ? supabase.from('movies').select('id,title,poster,backdrop,vote_average,release_date,genres').in('id', mIds) : { data: [] },
+          sIds.length ? supabase.from('series').select('id,name,poster,backdrop,vote_average,first_air_date,genres').in('id', sIds) : { data: [] },
         ])
-        mediaMap[section.id] = items
+        mediaMap[sec.id] = items
           .map(i => {
             const found = i.media_type === 'movie'
               ? (md.data || []).find(m => m.id === i.media_id)
@@ -232,124 +93,118 @@ export default function HomePage() {
     }
   }
 
-  useEffect(() => {
-    if (featured.length < 2) return
-    autoRef.current = setInterval(() => setHeroIdx(i => (i + 1) % featured.length), 7000)
-    return () => clearInterval(autoRef.current)
-  }, [featured.length])
-
-  const goHero = (idx) => { clearInterval(autoRef.current); setHeroIdx(idx) }
+  const isEmpty = !loading && !trendMovies.length && !trendSeries.length && !sections.length
 
   return (
-    <div className="bg-black min-h-screen">
+    <div className="min-h-screen bg-[#0B0B0F]">
+
       {/* ── Hero ── */}
-      <div className="relative h-[92vh] min-h-[600px] overflow-hidden">
-        {loading ? <HeroSkeleton /> : (
-          <>
-            {featured.map((item, i) => (
-              <HeroSlide key={`${item._type}-${item.id}`} item={item} type={item._type} active={i === heroIdx} />
-            ))}
+      <HeroBanner items={heroItems} loading={loading} />
 
-            {/* Dot indicators */}
-            {featured.length > 1 && (
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
-                <button onClick={() => goHero((heroIdx - 1 + featured.length) % featured.length)}
-                  className="h-7 w-7 flex items-center justify-center rounded-full glass hover:bg-white/20 transition-colors">
-                  <ChevronLeft className="h-3.5 w-3.5 text-white" />
-                </button>
-                <div className="flex items-center gap-1.5">
-                  {featured.map((_, i) => (
-                    <button key={i} onClick={() => goHero(i)}
-                      className={cn(
-                        'rounded-full transition-all duration-350 ease-smooth',
-                        i === heroIdx ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/35 hover:bg-white/55'
-                      )} />
-                  ))}
-                </div>
-                <button onClick={() => goHero((heroIdx + 1) % featured.length)}
-                  className="h-7 w-7 flex items-center justify-center rounded-full glass hover:bg-white/20 transition-colors">
-                  <ChevronRight className="h-3.5 w-3.5 text-white" />
-                </button>
-              </div>
-            )}
-          </>
+      {/* ── Content feed ── */}
+      <div className="pt-6 pb-24 md:pb-10">
+
+        {/* Admin-defined sections */}
+        {sections.map(sec => {
+          const items = sectionMedia[sec.id] || []
+          if (!items.length) return null
+          return (
+            <MovieRow
+              key={sec.id}
+              title={sec.title}
+              items={items}
+              type={sec.type === 'series' ? 'series' : 'movie'}
+            />
+          )
+        })}
+
+        {/* Trending Movies */}
+        {(loading || trendMovies.length > 0) && (
+          <MovieRow
+            title="Trending Movies"
+            icon={<TrendingUp className="h-4 w-4 text-indigo-400" />}
+            items={trendMovies}
+            type="movie"
+            loading={loading}
+            viewAllHref="/movies"
+          />
         )}
-      </div>
 
-      {/* ── Floating Search ── */}
-      <div className="max-w-2xl mx-auto px-4 -mt-6 relative z-10 mb-10 md:mb-12">
-        <div className="bg-black/70 backdrop-blur-2xl border border-white/10 rounded-2xl p-3 shadow-card-xl">
-          <SearchBar className="w-full" />
-        </div>
-      </div>
+        {/* Trending Series */}
+        {(loading || trendSeries.length > 0) && (
+          <MovieRow
+            title="Trending Series"
+            icon={<Tv className="h-4 w-4 text-violet-400" />}
+            items={trendSeries}
+            type="series"
+            loading={loading}
+            viewAllHref="/series"
+          />
+        )}
 
-      {/* ── Content rows ── */}
-      <div className="pb-10 md:pb-16">
-        {loading ? (
-          <>
-            <MediaRow title="Trending Movies" loading />
-            <MediaRow title="Popular Series"  loading />
-          </>
-        ) : (
-          <>
-            {sections.map(section => {
-              const items = sectionMedia[section.id] || []
-              if (!items.length) return null
-              return (
-                <MediaRow key={section.id} title={section.title} items={items}
-                  type={section.type === 'series' ? 'series' : 'movie'} />
-              )
-            })}
+        {/* Top Rated */}
+        {topRated.length > 0 && (
+          <MovieRow
+            title="Top Rated"
+            icon={<Star className="h-4 w-4 text-amber-400" />}
+            items={topRated}
+            type="movie"
+          />
+        )}
 
-            {trendingMovies.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />Trending Movies</span>}
-                items={trendingMovies} type="movie" viewAllHref="/movies"
-              />
-            )}
-            {trendingSeries.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-violet-500" />Popular Series</span>}
-                items={trendingSeries} type="series" viewAllHref="/series"
-              />
-            )}
-            {topRated.length > 0 && (
-              <Top10List items={topRated} type="movie" title="Top 10 Movies" />
-            )}
-            {hiddenGems.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><Gem className="h-5 w-5 text-amber-500" />Hidden Gems</span>}
-                items={hiddenGems} type="movie"
-              />
-            )}
-            {underrated.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-emerald-500" />Underrated Picks</span>}
-                items={underrated} type="movie"
-              />
-            )}
-            {recentlyViewed.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><Clock className="h-5 w-5 text-sky-400" />Recently Viewed</span>}
-                items={recentlyViewed}
-              />
-            )}
-            {recommended.length > 0 && (
-              <MediaRow
-                title={<span className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Recommended for You</span>}
-                items={recommended} type="movie"
-              />
-            )}
+        {/* Hidden Gems */}
+        {hiddenGems.length > 0 && (
+          <MovieRow
+            title="Hidden Gems"
+            icon={<Gem className="h-4 w-4 text-emerald-400" />}
+            items={hiddenGems}
+            type="movie"
+          />
+        )}
 
-            {!loading && trendingMovies.length === 0 && trendingSeries.length === 0 && sections.length === 0 && (
-              <div className="text-center py-28 px-4">
-                <div className="text-7xl mb-5">🎬</div>
-                <h2 className="text-2xl font-bold text-white mb-2">No content yet</h2>
-                <p className="text-white/50 mb-7 max-w-sm mx-auto">Import movies and series from the admin panel to get started.</p>
-                <Link to="/admin/import"><Button size="lg">Go to Admin Import</Button></Link>
-              </div>
-            )}
-          </>
+        {/* Underrated */}
+        {underrated.length > 0 && (
+          <MovieRow
+            title="Underrated Picks"
+            icon={<ThumbsUp className="h-4 w-4 text-sky-400" />}
+            items={underrated}
+            type="movie"
+          />
+        )}
+
+        {/* Recently Viewed */}
+        {recentlyViewed.length > 0 && (
+          <MovieRow
+            title="Recently Viewed"
+            icon={<Clock className="h-4 w-4 text-rose-400" />}
+            items={recentlyViewed}
+          />
+        )}
+
+        {/* Recommended */}
+        {recommended.length > 0 && (
+          <MovieRow
+            title="Recommended for You"
+            icon={<Sparkles className="h-4 w-4 text-indigo-400" />}
+            items={recommended}
+            type="movie"
+          />
+        )}
+
+        {/* Empty state */}
+        {isEmpty && (
+          <div className="flex flex-col items-center justify-center py-32 px-6 text-center">
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-5">
+              <Clapperboard className="h-8 w-8 text-white/20" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">No content yet</h2>
+            <p className="text-white/40 text-sm mb-6 max-w-xs">
+              Import movies and series from the admin panel to get started.
+            </p>
+            <Link to="/admin/import">
+              <Button size="lg">Go to Admin Import</Button>
+            </Link>
+          </div>
         )}
       </div>
     </div>
