@@ -1,18 +1,36 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Play, Plus, Check, ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { Play, Info, Plus, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { watchlistService } from '../services/social'
 import { useAuthStore } from '../store/authStore'
 import { getGenreNames, formatYear, cn } from '../utils/helpers'
-import { Skeleton } from './ui'
 
+/* ── Progress bar for auto-rotate ── */
+function ProgressBar({ active, duration, paused }) {
+  return (
+    <div className="h-[2px] w-full bg-white/15 rounded-full overflow-hidden">
+      <div
+        className={cn(
+          'h-full bg-white rounded-full origin-left',
+          active && !paused ? 'animate-hero-progress' : '',
+          !active ? 'w-0' : ''
+        )}
+        style={active && !paused ? { animationDuration: `${duration}ms` } : {}}
+      />
+    </div>
+  )
+}
+
+/* ── Single hero slide ── */
 function HeroSlide({ item, type, active }) {
-  const title = type === 'movie' ? item.title : item.name
-  const date  = type === 'movie' ? item.release_date : item.first_air_date
-  const genres = getGenreNames(item.genres).slice(0, 3)
-  const href  = `/${type}/${item.id}`
+  const title   = type === 'movie' ? item.title : item.name
+  const date    = type === 'movie' ? item.release_date : item.first_air_date
+  const genres  = getGenreNames(item.genres).slice(0, 3)
+  const href    = `/${type}/${item.id}`
+  const overview = item.overview || ''
+
   const { user } = useAuthStore()
-  const [inWl, setInWl] = useState(false)
+  const [inWl,   setInWl]   = useState(false)
   const [wlBusy, setWlBusy] = useState(false)
 
   const toggleWl = async (e) => {
@@ -26,93 +44,110 @@ function HeroSlide({ item, type, active }) {
   }
 
   return (
-    <div className={cn(
-      'absolute inset-0 transition-opacity duration-700',
-      active ? 'opacity-100' : 'opacity-0 pointer-events-none'
-    )}>
-      {/* Backdrop image */}
+    <div
+      className={cn(
+        'absolute inset-0 transition-opacity duration-1000',
+        active ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      )}
+    >
+      {/* ── Backdrop ── */}
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={item.backdrop || item.poster}
           alt={title}
-          className={cn('w-full h-full object-cover object-center', active && 'animate-ken-burns')}
+          className={cn(
+            'w-full h-full object-cover object-center select-none',
+            active && 'animate-ken-burns'
+          )}
+          draggable={false}
         />
       </div>
 
-      {/* Gradient layers */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/50 to-[#0B0B0F]/20" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0F]/80 via-transparent to-transparent" />
+      {/* ── Gradient layers ── */}
+      {/* Bottom-to-top: strong black fade so text is always readable */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/60 to-transparent" />
+      {/* Left-to-right: content side darkening */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0F]/90 via-[#0B0B0F]/40 to-transparent" />
+      {/* Top vignette so navbar stays readable */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent" />
 
-      {/* Centered play button */}
-      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-        <Link
-          to={href}
-          className={cn(
-            'pointer-events-auto flex items-center justify-center',
-            'h-[72px] w-[72px] rounded-full',
-            'bg-white/10 backdrop-blur-sm border-2 border-white/40',
-            'shadow-[0_0_48px_rgba(255,255,255,0.12)]',
-            'transition-all duration-300 active:scale-90',
-            'hero-play-btn',
-            active ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-          )}
-          style={{ transitionDelay: active ? '350ms' : '0ms' }}
-        >
-          <Play className="h-8 w-8 text-white fill-white ml-1" />
-        </Link>
-      </div>
+      {/* ── Content ── */}
+      <div className="absolute inset-0 flex items-end">
+        <div className="w-full px-5 sm:px-8 md:px-14 lg:px-20 pb-32 md:pb-24 max-w-[860px]">
+          <div className={cn(active && 'hero-content-enter')}>
 
-      {/* Bottom content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-28 md:pb-24 md:px-10">
-        <div className={cn(active && 'hero-content-enter')}>
-          {/* Genre pills */}
-          {genres.length > 0 && (
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {/* Genre + type badges */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 border border-white/15 rounded-full px-2.5 py-0.5">
+                {type === 'movie' ? 'Movie' : 'Series'}
+              </span>
               {genres.map(g => (
-                <span key={g} className="text-[11px] font-medium text-white/70 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-2.5 py-0.5">
+                <span key={g} className="text-[10px] font-semibold text-white/60 bg-white/8 border border-white/10 rounded-full px-2.5 py-0.5">
                   {g}
                 </span>
               ))}
             </div>
-          )}
 
-          {/* Title */}
-          <h1 className="text-[2rem] sm:text-5xl md:text-6xl font-black text-white leading-[1.05] tracking-tight mb-2.5 max-w-lg">
-            {title}
-          </h1>
+            {/* Title */}
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.0] tracking-tight mb-4 text-cinematic">
+              {title}
+            </h1>
 
-          {/* Meta */}
-          <div className="flex items-center gap-2.5 mb-5 text-sm">
-            {item.vote_average > 0 && (
-              <span className="flex items-center gap-1 text-amber-400 font-bold">
-                <Star className="h-3.5 w-3.5 fill-current" />
-                {item.vote_average.toFixed(1)}
-              </span>
+            {/* Meta row */}
+            <div className="flex items-center gap-3 mb-4 text-sm">
+              {item.vote_average > 0 && (
+                <span className="flex items-center gap-1.5 font-bold text-amber-400">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  {item.vote_average.toFixed(1)}
+                  <span className="text-white/30 font-normal text-xs">/ 10</span>
+                </span>
+              )}
+              {item.vote_average > 0 && <span className="text-white/20">·</span>}
+              <span className="text-white/50 font-medium">{formatYear(date)}</span>
+            </div>
+
+            {/* Description — hidden on small mobile, 2 lines on sm+ */}
+            {overview && (
+              <p className="hidden sm:block text-white/60 text-sm md:text-[15px] leading-relaxed line-clamp-2 mb-6 max-w-xl">
+                {overview}
+              </p>
             )}
-            {item.vote_average > 0 && <span className="text-white/25">·</span>}
-            <span className="text-white/55 font-medium">{formatYear(date)}</span>
-            <span className="text-white/25">·</span>
-            <span className="text-white/55 font-medium capitalize">{type}</span>
-          </div>
 
-          {/* CTAs */}
-          <div className="flex items-center gap-3">
-            <Link
-              to={href}
-              className="flex items-center gap-2 h-11 px-6 rounded-full bg-white text-black text-sm font-bold active:scale-95 transition-transform"
-            >
-              <Play className="h-4 w-4 fill-black" />
-              View Details
-            </Link>
-            {user && (
-              <button
-                onClick={toggleWl}
-                disabled={wlBusy}
-                className="flex items-center justify-center h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white active:scale-95 transition-transform"
+            {/* CTA buttons */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Play / View Details */}
+              <Link
+                to={href}
+                className="flex items-center gap-2.5 h-12 px-7 rounded-full bg-white text-black text-sm font-black hover:bg-white/90 active:scale-95 transition-all shadow-[0_4px_24px_rgba(255,255,255,0.2)]"
               >
-                {inWl ? <Check className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5" />}
-              </button>
-            )}
+                <Play className="h-4 w-4 fill-black flex-shrink-0" />
+                Play
+              </Link>
+
+              {/* More Info */}
+              <Link
+                to={href}
+                className="flex items-center gap-2.5 h-12 px-7 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 active:scale-95 transition-all"
+              >
+                <Info className="h-4 w-4 flex-shrink-0" />
+                More Info
+              </Link>
+
+              {/* Watchlist — icon only */}
+              {user && (
+                <button
+                  onClick={toggleWl}
+                  disabled={wlBusy}
+                  aria-label={inWl ? 'Remove from watchlist' : 'Add to watchlist'}
+                  className="flex items-center justify-center h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 active:scale-95 transition-all"
+                >
+                  {inWl
+                    ? <Check className="h-5 w-5 text-indigo-400" />
+                    : <Plus className="h-5 w-5" />
+                  }
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -120,79 +155,116 @@ function HeroSlide({ item, type, active }) {
   )
 }
 
+/* ── Skeleton ── */
+function HeroSkeleton() {
+  return (
+    <div className="absolute inset-0 bg-[#0B0B0F]">
+      <div className="absolute inset-0 bg-gradient-to-tr from-white/[0.03] to-transparent animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/50 to-transparent" />
+      <div className="absolute bottom-32 left-5 sm:left-14 space-y-4 w-72 sm:w-96">
+        <div className="h-3 w-24 bg-white/8 rounded-full" />
+        <div className="h-12 w-full bg-white/8 rounded-2xl" />
+        <div className="h-3 w-32 bg-white/6 rounded-full" />
+        <div className="h-4 w-full bg-white/5 rounded-lg" />
+        <div className="h-4 w-4/5 bg-white/5 rounded-lg" />
+        <div className="flex gap-3 pt-2">
+          <div className="h-12 w-32 bg-white/10 rounded-full" />
+          <div className="h-12 w-32 bg-white/6 rounded-full" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Main export ── */
+const ROTATE_MS = 7000
+
 export default function HeroBanner({ items = [], loading = false }) {
-  const [idx, setIdx] = useState(0)
+  const [idx,    setIdx]    = useState(0)
+  const [paused, setPaused] = useState(false)
   const timerRef = useRef(null)
 
   const startTimer = () => {
     clearInterval(timerRef.current)
     if (items.length > 1) {
-      timerRef.current = setInterval(() => setIdx(i => (i + 1) % items.length), 6000)
+      timerRef.current = setInterval(
+        () => setIdx(i => (i + 1) % items.length),
+        ROTATE_MS
+      )
     }
   }
 
-  useEffect(() => { startTimer(); return () => clearInterval(timerRef.current) }, [items.length])
+  useEffect(() => {
+    startTimer()
+    return () => clearInterval(timerRef.current)
+  }, [items.length])
 
   const go = (i) => { setIdx(i); startTimer() }
-
-  if (loading) {
-    return (
-      <div className="relative h-[55vh] min-h-[420px] bg-[#0B0B0F] overflow-hidden">
-        <div className="absolute inset-0 shimmer opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-[#0B0B0F]/40 to-transparent" />
-        <div className="absolute bottom-28 left-4 space-y-3 w-64">
-          <Skeleton className="h-4 w-32 rounded-full" />
-          <Skeleton className="h-10 w-56 rounded-xl" />
-          <Skeleton className="h-4 w-24 rounded-lg" />
-          <div className="flex gap-3 pt-1">
-            <Skeleton className="h-11 w-36 rounded-full" />
-            <Skeleton className="h-11 w-11 rounded-full" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!items.length) return null
+  const prev = () => go((idx - 1 + items.length) % items.length)
+  const next = () => go((idx + 1) % items.length)
 
   return (
-    <div className="relative h-[55vh] min-h-[420px] md:h-[70vh] overflow-hidden">
-      {items.map((item, i) => (
-        <HeroSlide
-          key={`${item._type}-${item.id}`}
-          item={item}
-          type={item._type}
-          active={i === idx}
-        />
-      ))}
+    <div
+      className="relative w-full h-[62vh] min-h-[500px] md:h-[78vh] md:min-h-[600px] overflow-hidden bg-[#0B0B0F]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Slides */}
+      {loading
+        ? <HeroSkeleton />
+        : items.map((item, i) => (
+            <HeroSlide
+              key={`${item._type}-${item.id}`}
+              item={item}
+              type={item._type}
+              active={i === idx}
+            />
+          ))
+      }
 
-      {/* Dot indicators + arrows */}
-      {items.length > 1 && (
-        <div className="absolute bottom-[72px] md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-          <button
-            onClick={() => go((idx - 1 + items.length) % items.length)}
-            className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15"
-          >
-            <ChevronLeft className="h-3 w-3 text-white" />
-          </button>
-          <div className="flex items-center gap-1.5">
-            {items.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => go(i)}
-                className={cn(
-                  'rounded-full transition-all duration-400',
-                  i === idx ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/30'
-                )}
-              />
-            ))}
+      {/* ── Bottom controls bar ── */}
+      {!loading && items.length > 1 && (
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-5 sm:px-8 md:px-14 lg:px-20 pb-6 md:pb-8">
+          <div className="flex items-center gap-4">
+
+            {/* Prev / Next arrows */}
+            <button
+              onClick={prev}
+              className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white hover:bg-white/20 transition-all active:scale-90"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            {/* Progress bars — one per slide */}
+            <div className="flex-1 flex items-center gap-1.5">
+              {items.map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-1 cursor-pointer"
+                  onClick={() => go(i)}
+                >
+                  <ProgressBar
+                    active={i === idx}
+                    duration={ROTATE_MS}
+                    paused={paused}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Next arrow */}
+            <button
+              onClick={next}
+              className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white hover:bg-white/20 transition-all active:scale-90"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            {/* Slide counter */}
+            <span className="text-[11px] font-semibold text-white/35 tabular-nums flex-shrink-0">
+              {idx + 1} / {items.length}
+            </span>
           </div>
-          <button
-            onClick={() => go((idx + 1) % items.length)}
-            className="h-6 w-6 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15"
-          >
-            <ChevronRight className="h-3 w-3 text-white" />
-          </button>
         </div>
       )}
     </div>

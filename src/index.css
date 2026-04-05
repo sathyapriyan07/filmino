@@ -207,6 +207,11 @@
   100% { transform: scale(1)    translateX(0)    translateY(0); }
 }
 
+@keyframes heroProgress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
 @keyframes heroContentEnter {
   0%   { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -218,6 +223,7 @@
 .animate-scale-in  { animation: scaleIn  0.22s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-slide-up  { animation: slideUp  0.4s  cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-ken-burns { animation: kenBurns 14s   ease-in-out infinite; }
+.animate-hero-progress { animation: heroProgress linear forwards; }
 
 /* Hero content stagger */
 .hero-content-enter > * {
