@@ -99,6 +99,11 @@
     animation: shimmer 2s ease-in-out infinite;
   }
 
+  /* ── OTT cinematic vignette ── */
+  .hero-vignette {
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+  }
+
   /* ── Safe area ── */
   .pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px); }
   .pt-safe { padding-top: env(safe-area-inset-top, 0px); }

@@ -7,7 +7,7 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-1 pb-[72px] md:pb-0 page-enter" key={location.pathname}>
+      <main className="flex-1 pb-[72px] md:pb-0 page-enter pt-0" key={location.pathname}>
         <Outlet />
       </main>
 
