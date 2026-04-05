@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { Calendar, MapPin, Star, Film, Tv } from 'lucide-react'
 import { personService } from '../services/persons'
 import { supabase } from '../services/supabase'
-import { Skeleton, Badge } from '../components/ui'
+import { Skeleton, Badge, PageContainer } from '../components/ui'
 import { formatDate, cn } from '../utils/helpers'
 
 export default function PersonDetailPage() {
@@ -43,7 +43,7 @@ export default function PersonDetailPage() {
   }
 
   if (loading) return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <PageContainer className="py-8">
       <div className="flex gap-8">
         <Skeleton className="w-48 h-72 rounded-2xl flex-shrink-0" />
         <div className="flex-1 space-y-4">
@@ -52,7 +52,7 @@ export default function PersonDetailPage() {
           <Skeleton className="h-4 w-3/4" />
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 
   if (!person) return <div className="text-center py-20 text-muted-foreground">Person not found</div>
@@ -72,7 +72,7 @@ export default function PersonDetailPage() {
     <div className="page-enter">
       {/* Cinematic Header */}
       <div className="relative bg-gradient-to-b from-muted/40 to-background border-b border-border/40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
+        <PageContainer className="py-12">
           <div className="flex flex-col sm:flex-row gap-8 items-start">
             {/* Profile Image */}
             <div className="flex-shrink-0">
@@ -143,10 +143,10 @@ export default function PersonDetailPage() {
               )}
             </div>
           </div>
-        </div>
+        </PageContainer>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
+      <PageContainer className="py-10 pb-16">
         {/* Known For */}
         {knownFor.length > 0 && (
           <section className="mb-12">
@@ -224,7 +224,7 @@ export default function PersonDetailPage() {
             </div>
           </section>
         )}
-      </div>
+      </PageContainer>
     </div>
   )
 }

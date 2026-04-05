@@ -6,7 +6,7 @@ export default function Top10List({ items = [], type = 'movie', title = 'Top 10 
   if (!items.length) return null
 
   return (
-    <section className="mb-12 md:mb-14 px-4 sm:px-6 lg:px-10 xl:px-16">
+    <section className="mb-10 md:mb-12 px-4 sm:px-6 lg:px-10 xl:px-12">
       <h2 className="text-lg md:text-xl font-semibold tracking-tight text-foreground mb-5">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.slice(0, 10).map((item, i) => {

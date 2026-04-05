@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../services/supabase'
 import MediaCard from '../components/MediaCard'
-import { Skeleton, Select, Button, Badge } from '../components/ui'
+import { Skeleton, Select, Button, Badge, PageContainer, MediaGrid } from '../components/ui'
 import { Search, SlidersHorizontal, X, Film, Tv, User } from 'lucide-react'
 import SearchBar from '../components/SearchBar'
 import { cn } from '../utils/helpers'
@@ -67,15 +67,15 @@ export default function SearchPage() {
   const years = Array.from({ length: 35 }, (_, i) => new Date().getFullYear() - i)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <PageContainer className="py-8 md:py-10">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 md:mb-8">
         <div className="md:hidden mb-4">
           <SearchBar autoFocus />
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight">
               {query ? <>Results for "<span className="text-primary">{query}</span>"</> : 'Search'}
             </h1>
             {!loading && query && (
@@ -158,31 +158,31 @@ export default function SearchPage() {
           <p className="text-muted-foreground">Find movies, series, and people</p>
         </div>
       ) : loading ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+        <MediaGrid>
           {Array.from({ length: 12 }).map((_, i) => <Skeleton key={i} className="aspect-[2/3] rounded-2xl" />)}
-        </div>
+        </MediaGrid>
       ) : (
         <div className="space-y-8 animate-fade-in">
           {(tab === 'all' || tab === 'movies') && results.movies.length > 0 && (
             <section>
               {tab === 'all' && <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-muted-foreground"><Film className="h-4 w-4" /> Movies</h2>}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+              <MediaGrid>
                 {results.movies.map(m => <MediaCard key={m.id} item={m} type="movie" />)}
-              </div>
+              </MediaGrid>
             </section>
           )}
           {(tab === 'all' || tab === 'series') && results.series.length > 0 && (
             <section>
               {tab === 'all' && <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-muted-foreground"><Tv className="h-4 w-4" /> Series</h2>}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+              <MediaGrid>
                 {results.series.map(s => <MediaCard key={s.id} item={s} type="series" />)}
-              </div>
+              </MediaGrid>
             </section>
           )}
           {(tab === 'all' || tab === 'people') && results.persons.length > 0 && (
             <section>
               {tab === 'all' && <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-muted-foreground"><User className="h-4 w-4" /> People</h2>}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+              <MediaGrid>
                 {results.persons.map(p => (
                   <Link key={p.id} to={`/person/${p.id}`} className="group text-center">
                     <div className="aspect-square rounded-2xl overflow-hidden bg-muted mb-2 shadow-card group-hover:shadow-card-hover transition-all duration-300 group-hover:scale-[1.04]">
@@ -195,7 +195,7 @@ export default function SearchPage() {
                     <div className="text-xs text-muted-foreground">{p.known_for_department}</div>
                   </Link>
                 ))}
-              </div>
+              </MediaGrid>
             </section>
           )}
           {total === 0 && (
@@ -210,6 +210,6 @@ export default function SearchPage() {
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

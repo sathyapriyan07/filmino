@@ -11,7 +11,7 @@ import MediaRow from '../components/MediaRow'
 import StarRating from '../components/StarRating'
 import CastCarousel from '../components/CastCarousel'
 import TrailerModal from '../components/TrailerModal'
-import { Skeleton, Button, Textarea, Badge } from '../components/ui'
+import { Skeleton, Button, Textarea, Badge, PageContainer } from '../components/ui'
 import { formatDate, getGenreNames, cn } from '../utils/helpers'
 
 const TABS = ['Overview', 'Seasons', 'Cast', 'Reviews']
@@ -119,7 +119,7 @@ export default function SeriesDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         <div className="absolute inset-0 flex items-end">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 w-full flex gap-8 items-end">
+          <PageContainer className="pb-12 flex gap-8 items-end">
             {series.poster && (
               <img src={series.poster} alt={series.name}
                 className="hidden md:block w-40 rounded-2xl shadow-2xl flex-shrink-0 -mb-16 border-2 border-border/60" />
@@ -142,11 +142,11 @@ export default function SeriesDetailPage() {
                 <span>{seasons.length} Season{seasons.length !== 1 ? 's' : ''}</span>
               </div>
             </div>
-          </div>
+          </PageContainer>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 md:pt-20">
+      <PageContainer className="pt-6 md:pt-20 pb-16">
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-3 mb-8">
           {trailer && (
@@ -332,7 +332,7 @@ export default function SeriesDetailPage() {
             </div>
           )}
         </div>
-      </div>
+      </PageContainer>
 
       {activeVideo && <TrailerModal videoKey={activeVideo} onClose={() => setActiveVideo(null)} />}
     </div>

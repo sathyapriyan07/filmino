@@ -13,7 +13,7 @@ export default function MainLayout() {
 
       {/* Footer — desktop only */}
       <footer className="hidden md:block mt-20 border-t border-border/40 bg-card/40">
-        <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10">
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 py-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="h-7 w-7 rounded-[8px] bg-primary flex items-center justify-center shadow-glow-xs group-hover:shadow-glow-sm transition-shadow">

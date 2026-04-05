@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { seriesService } from '../services/media'
 import { genreService } from '../services/admin'
 import MediaCard, { MediaCardSkeleton } from '../components/MediaCard'
-import { Select, Button, Badge } from '../components/ui'
+import { Select, Button, Badge, PageContainer, MediaGrid } from '../components/ui'
 import { SlidersHorizontal, X } from 'lucide-react'
 
 const LIMIT = 24
@@ -46,8 +46,8 @@ export default function SeriesPage() {
   const years = Array.from({ length: 35 }, (_, i) => new Date().getFullYear() - i)
 
   return (
-    <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10 md:py-12">
-      <div className="flex items-end justify-between mb-7">
+    <PageContainer className="py-10 md:py-12">
+      <div className="flex items-end justify-between mb-6 md:mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl font-black tracking-tight">Series</h1>
           <p className="text-muted-foreground text-sm mt-1.5">{total.toLocaleString()} titles</p>
@@ -89,12 +89,12 @@ export default function SeriesPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+      <MediaGrid>
         {loading
           ? Array.from({ length: LIMIT }).map((_, i) => <MediaCardSkeleton key={i} />)
           : series.map(s => <MediaCard key={s.id} item={s} type="series" />)
         }
-      </div>
+      </MediaGrid>
 
       <div ref={loaderRef} className="h-16 flex items-center justify-center mt-4">
         {loadingMore && (
@@ -107,6 +107,6 @@ export default function SeriesPage() {
           <p className="text-xs text-muted-foreground/60">All {total.toLocaleString()} series loaded</p>
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../services/supabase'
 import { movieService, seriesService } from '../services/media'
 import MediaCard from '../components/MediaCard'
-import { Skeleton, Button, Select } from '../components/ui'
+import { Skeleton, Button, Select, PageContainer, MediaGrid } from '../components/ui'
 
 export default function GenreDetailPage() {
   const { id } = useParams()
@@ -37,11 +37,11 @@ export default function GenreDetailPage() {
   const displaySeries = tab === 'movies' ? [] : series
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <PageContainer className="py-8 md:py-10">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-bold">{genre?.name || 'Genre'}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{movies.length + series.length} titles</p>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight">{genre?.name || 'Genre'}</h1>
+          <p className="text-muted-foreground text-sm mt-1.5">{movies.length + series.length} titles</p>
         </div>
         <Select value={sortBy} onChange={e => setSortBy(e.target.value)} className="w-40">
           <option value="popularity">Most Popular</option>
@@ -60,25 +60,25 @@ export default function GenreDetailPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+        <MediaGrid>
           {Array.from({ length: 18 }).map((_, i) => <Skeleton key={i} className="aspect-[2/3] rounded-2xl" />)}
-        </div>
+        </MediaGrid>
       ) : (
         <>
           {displayMovies.length > 0 && (
-            <div className="mb-8">
+            <div className="mb-10">
               {tab === 'all' && <h2 className="text-lg font-semibold mb-4">Movies</h2>}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+              <MediaGrid>
                 {displayMovies.map(m => <MediaCard key={m.id} item={m} type="movie" />)}
-              </div>
+              </MediaGrid>
             </div>
           )}
           {displaySeries.length > 0 && (
             <div>
               {tab === 'all' && <h2 className="text-lg font-semibold mb-4">Series</h2>}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+              <MediaGrid>
                 {displaySeries.map(s => <MediaCard key={s.id} item={s} type="series" />)}
-              </div>
+              </MediaGrid>
             </div>
           )}
           {displayMovies.length === 0 && displaySeries.length === 0 && (
@@ -86,6 +86,6 @@ export default function GenreDetailPage() {
           )}
         </>
       )}
-    </div>
+    </PageContainer>
   )
 }

@@ -6,7 +6,7 @@ import { supabase } from '../services/supabase'
 import { getRecentlyViewed } from '../hooks/useRecentlyViewed'
 import MediaCard from '../components/MediaCard'
 import StarRating from '../components/StarRating'
-import { Skeleton, Button, Input, Avatar } from '../components/ui'
+import { Skeleton, Button, Input, Avatar, PageContainer, MediaGrid } from '../components/ui'
 import { Star, Bookmark, MessageSquare, Clock, Activity, Edit2, Check, X } from 'lucide-react'
 import { cn } from '../utils/helpers'
 
@@ -134,7 +134,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 page-enter">
+    <PageContainer className="py-8 md:py-10 page-enter">
       {/* Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-8">
         <div className="flex items-start gap-5">
@@ -198,22 +198,22 @@ export default function ProfilePage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+        <MediaGrid className="grid-cols-3 sm:grid-cols-4 md:grid-cols-5">
           {Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className="aspect-[2/3] rounded-2xl" />)}
-        </div>
+        </MediaGrid>
       ) : (
         <div className="animate-fade-in">
           {/* Watchlist */}
           {tab === 'watchlist' && (
             watchlist.length === 0
               ? <EmptyState icon={Bookmark} message="Your watchlist is empty" />
-              : <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+              : <MediaGrid className="grid-cols-3 sm:grid-cols-4 md:grid-cols-5">
                   {watchlist.map(item => {
                     const media = mediaMap[`${item.media_type}-${item.media_id}`]
                     if (!media) return null
                     return <MediaCard key={item.id} item={media} type={media._type} />
                   })}
-                </div>
+                </MediaGrid>
           )}
 
           {/* Ratings */}
@@ -285,15 +285,15 @@ export default function ProfilePage() {
           {tab === 'recent' && (
             recentlyViewed.length === 0
               ? <EmptyState icon={Clock} message="Nothing viewed yet" />
-              : <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+              : <MediaGrid className="grid-cols-3 sm:grid-cols-4 md:grid-cols-5">
                   {recentlyViewed.map((item, i) => (
                     <MediaCard key={`${item._type}-${item.id}-${i}`} item={item} type={item._type} />
                   ))}
-                </div>
+                </MediaGrid>
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

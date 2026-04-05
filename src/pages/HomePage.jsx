@@ -53,7 +53,7 @@ function HeroSlide({ item, type, active }) {
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-end">
-        <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 pb-20 md:pb-24 w-full">
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pb-20 md:pb-24">
           <div className={cn('max-w-xl', active && 'stagger')}>
             {/* Badges */}
             <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -257,14 +257,14 @@ export default function HomePage() {
       </div>
 
       {/* ── Floating Search ── */}
-      <div className="max-w-2xl mx-auto px-4 -mt-6 relative z-10 mb-14">
+      <div className="max-w-2xl mx-auto px-4 -mt-6 relative z-10 mb-10 md:mb-12">
         <div className="bg-card/90 backdrop-blur-2xl border border-border/50 rounded-2xl p-3 shadow-card-xl">
           <SearchBar className="w-full" />
         </div>
       </div>
 
       {/* ── Content rows ── */}
-      <div className="space-y-2">
+      <div className="pb-10 md:pb-16">
         {loading ? (
           <>
             <MediaRow title="Trending Movies" loading />

@@ -11,7 +11,7 @@ import MediaRow from '../components/MediaRow'
 import StarRating from '../components/StarRating'
 import CastCarousel from '../components/CastCarousel'
 import TrailerModal from '../components/TrailerModal'
-import { Skeleton, Button, Textarea, Badge } from '../components/ui'
+import { Skeleton, Button, Textarea, Badge, PageContainer, MediaGrid } from '../components/ui'
 import { formatDate, formatRuntime, formatMoney, getGenreNames, cn } from '../utils/helpers'
 
 const TABS = ['Overview', 'Cast', 'Reviews', 'Similar']
@@ -125,11 +125,11 @@ export default function MovieDetailPage() {
   if (loading) return (
     <div>
       <Skeleton className="h-[60vh] w-full rounded-none" />
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-4">
+      <PageContainer className="py-8 space-y-4">
         <Skeleton className="h-10 w-1/2" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
-      </div>
+      </PageContainer>
     </div>
   )
 
@@ -151,7 +151,7 @@ export default function MovieDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
 
         <div className="absolute inset-0 flex items-end">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 w-full flex gap-8 items-end">
+          <PageContainer className="pb-12 flex gap-8 items-end">
             {movie.poster && (
               <img src={movie.poster} alt={movie.title}
                 className="hidden md:block w-40 rounded-2xl shadow-2xl flex-shrink-0 -mb-16 border-2 border-border/60" />
@@ -174,11 +174,11 @@ export default function MovieDetailPage() {
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(movie.release_date)}</span>
               </div>
             </div>
-          </div>
+          </PageContainer>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 md:pt-20">
+      <PageContainer className="pt-6 md:pt-20 pb-16">
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-3 mb-8">
           {trailer && (
@@ -332,7 +332,7 @@ export default function MovieDetailPage() {
 
           {activeTab === 'Similar' && (
             similar.length > 0
-              ? <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+              ? <MediaGrid>
                   {similar.map(m => (
                     <Link key={m.id} to={`/movie/${m.id}`} className="group block">
                       <div className="aspect-[2/3] rounded-xl overflow-hidden bg-muted mb-2 group-hover:scale-[1.03] transition-transform duration-200">
@@ -344,17 +344,17 @@ export default function MovieDetailPage() {
                       <div className="text-xs font-medium line-clamp-2 group-hover:text-primary transition-colors">{m.title}</div>
                     </Link>
                   ))}
-                </div>
+                </MediaGrid>
               : <p className="text-muted-foreground">No similar movies found.</p>
           )}
         </div>
 
-        <div className="mt-16 mb-8">
+        <div className="mt-12">
           {similar.length > 0 && activeTab !== 'Similar' && (
             <MediaRow title="More Like This" items={similar.map(m => ({ ...m, _type: 'movie' }))} type="movie" />
           )}
         </div>
-      </div>
+      </PageContainer>
 
       {activeVideo && <TrailerModal videoKey={activeVideo} onClose={() => setActiveVideo(null)} />}
     </div>

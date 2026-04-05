@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { movieService } from '../services/media'
 import { genreService } from '../services/admin'
 import MediaCard, { MediaCardSkeleton } from '../components/MediaCard'
-import { Select, Button, Badge, Skeleton } from '../components/ui'
+import { Select, Button, Badge, Skeleton, PageContainer, MediaGrid } from '../components/ui'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { cn } from '../utils/helpers'
 
@@ -48,9 +48,9 @@ export default function MoviesPage() {
   const years = Array.from({ length: 35 }, (_, i) => new Date().getFullYear() - i)
 
   return (
-    <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-10 md:py-12">
+    <PageContainer className="py-10 md:py-12">
       {/* Header */}
-      <div className="flex items-end justify-between mb-7">
+      <div className="flex items-end justify-between mb-6 md:mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl font-black tracking-tight">Movies</h1>
           <p className="text-muted-foreground text-sm mt-1.5">{total.toLocaleString()} titles</p>
@@ -96,12 +96,12 @@ export default function MoviesPage() {
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+      <MediaGrid>
         {loading
           ? Array.from({ length: LIMIT }).map((_, i) => <MediaCardSkeleton key={i} />)
           : movies.map(m => <MediaCard key={m.id} item={m} type="movie" />)
         }
-      </div>
+      </MediaGrid>
 
       {/* Infinite scroll sentinel */}
       <div ref={loaderRef} className="h-16 flex items-center justify-center mt-4">
@@ -115,6 +115,6 @@ export default function MoviesPage() {
           <p className="text-xs text-muted-foreground/60">All {total.toLocaleString()} movies loaded</p>
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }

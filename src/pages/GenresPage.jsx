@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { genreService } from '../services/admin'
 import { supabase } from '../services/supabase'
-import { Skeleton } from '../components/ui'
+import { Skeleton, PageContainer, MediaGrid } from '../components/ui'
 import { cn } from '../utils/helpers'
 
 const GENRE_COLORS = [
@@ -52,10 +52,10 @@ export default function GenresPage() {
   }, [])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight">Browse by Genre</h1>
-        <p className="text-muted-foreground text-sm mt-1">Discover movies and series by category</p>
+    <PageContainer className="py-8 md:py-10">
+      <div className="mb-8 md:mb-10">
+        <h1 className="text-3xl md:text-4xl font-black tracking-tight">Browse by Genre</h1>
+        <p className="text-muted-foreground text-sm mt-1.5">Discover movies and series by category</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
@@ -70,6 +70,6 @@ export default function GenresPage() {
           <p>No genres yet. Import some movies to auto-create genres.</p>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

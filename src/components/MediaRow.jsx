@@ -25,9 +25,9 @@ export default function MediaRow({ title, items = [], type = 'movie', loading = 
   }
 
   return (
-    <section className={cn('mb-12 md:mb-14', className)}>
+    <section className={cn('mb-10 md:mb-12', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 md:mb-5 px-4 sm:px-6 lg:px-10 xl:px-16">
+      <div className="flex items-center justify-between mb-4 md:mb-5 px-4 sm:px-6 lg:px-10 xl:px-12">
         <h2 className="text-lg md:text-xl font-semibold tracking-tight text-foreground leading-tight">
           {title}
         </h2>
@@ -76,7 +76,7 @@ export default function MediaRow({ title, items = [], type = 'movie', loading = 
       <div
         ref={scrollRef}
         onScroll={updateArrows}
-        className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-1 snap-x-mandatory px-4 sm:px-6 lg:px-10 xl:px-16"
+        className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-1 snap-x-mandatory px-4 sm:px-6 lg:px-10 xl:px-12"
       >
         {loading
           ? Array.from({ length: 8 }).map((_, i) => (

@@ -204,3 +204,68 @@ export function SectionHeader({ title, action, className }) {
     </div>
   )
 }
+
+/* ─────────────────────────────────────────
+   PAGE CONTAINER
+   Single source of truth for max-width + horizontal padding.
+   Use on every page root div.
+───────────────────────────────────────── */
+export function PageContainer({ className, children, ...props }) {
+  return (
+    <div
+      className={cn(
+        'w-full max-w-screen-xl mx-auto',
+        'px-4 sm:px-6 lg:px-10 xl:px-12',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────
+   SECTION WRAPPER
+   Consistent vertical rhythm between every section.
+───────────────────────────────────────── */
+export function SectionWrapper({ className, children, ...props }) {
+  return (
+    <section className={cn('mt-10 md:mt-14', className)} {...props}>
+      {children}
+    </section>
+  )
+}
+
+/* ─────────────────────────────────────────
+   SECTION TITLE ROW
+   [Title left] [Action right] with consistent bottom margin.
+───────────────────────────────────────── */
+export function SectionTitle({ title, action, className }) {
+  return (
+    <div className={cn('flex items-center justify-between mb-4 md:mb-5', className)}>
+      <h2 className="text-lg md:text-xl font-semibold tracking-tight text-foreground leading-tight">
+        {title}
+      </h2>
+      {action && <div className="flex items-center gap-2 flex-shrink-0">{action}</div>}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────
+   MEDIA GRID
+   Canonical responsive poster grid used on all list/search pages.
+───────────────────────────────────────── */
+export function MediaGrid({ className, children }) {
+  return (
+    <div
+      className={cn(
+        'grid gap-3 md:gap-4',
+        'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6',
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+}
