@@ -54,7 +54,7 @@ function PosterBackground({ className = '' }) {
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover opacity-[0.40]"
+                      className="w-full h-full object-cover opacity-[0.75]"
                     />
                   )}
                 </div>
@@ -65,14 +65,14 @@ function PosterBackground({ className = '' }) {
       </div>
 
       {/* ── Overlay stack ── */}
-      {/* base dark */}
-      <div className="absolute inset-0 bg-black/60" />
-      {/* bottom-to-top fade — critical for mobile so form reads cleanly */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/95" />
-      {/* top vignette */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent h-1/3" />
+      {/* light base dark — posters stay clearly visible */}
+      <div className="absolute inset-0 bg-black/25" />
+      {/* bottom fade — only last 30% fades to dark for form readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" style={{ top: '55%' }} />
+      {/* subtle top vignette */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" style={{ bottom: '70%' }} />
       {/* desktop: right-side fade so form panel has clean bg */}
-      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-black/20 to-black/95" />
+      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-transparent to-black/90" style={{ left: '55%' }} />
     </div>
   )
 }
@@ -289,17 +289,16 @@ function PasswordStrength({ password }) {
 ───────────────────────────────────────────────────────── */
 export function AuthMobileLayout({ children }) {
   return (
-    <div className="min-h-screen bg-[#07070f] flex flex-col md:flex-row overflow-hidden">
+    <div className="h-screen bg-[#07070f] flex flex-col md:flex-row overflow-hidden">
 
       {/* ── POSTER SECTION ── */}
-      {/* Mobile: fixed height top band */}
+      {/* Mobile: flex-1 fills remaining space above the form sheet */}
       {/* Desktop: full-height left panel */}
-      <div className="relative h-[42vh] md:h-auto md:flex-1 flex-shrink-0 overflow-hidden">
+      <div className="relative flex-1 md:flex-1 overflow-hidden">
         <PosterBackground />
 
-        {/* Desktop branding — sits above overlays */}
+        {/* Desktop branding */}
         <div className="hidden md:flex relative z-10 flex-col justify-between h-full p-10 lg:p-14">
-          {/* Logo top-left */}
           <div className="auth-brand-item" style={{ animationDelay: '80ms' }}>
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-[10px] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_18px_rgba(99,102,241,0.50)]">
@@ -308,8 +307,6 @@ export function AuthMobileLayout({ children }) {
               <span className="text-xl font-black text-white tracking-tight">Filmino</span>
             </div>
           </div>
-
-          {/* Tagline + stats bottom-left */}
           <div className="max-w-[280px]">
             <div className="auth-brand-item" style={{ animationDelay: '180ms' }}>
               <h2 className="text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
@@ -327,7 +324,7 @@ export function AuthMobileLayout({ children }) {
         </div>
 
         {/* Mobile logo — centred over poster */}
-        <div className="md:hidden absolute inset-0 flex flex-col items-center justify-center z-10 pb-8">
+        <div className="md:hidden absolute inset-0 flex flex-col items-center justify-center z-10">
           <div className="auth-brand-item" style={{ animationDelay: '0ms' }}>
             <div className="flex flex-col items-center gap-3">
               <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_24px_rgba(99,102,241,0.55)]">
@@ -340,32 +337,31 @@ export function AuthMobileLayout({ children }) {
       </div>
 
       {/* ── FORM SECTION ── */}
-      {/* Mobile: rounded-t-3xl sheet that slides up over the poster */}
-      {/* Desktop: fixed-width right panel */}
+      {/* Mobile: fixed height, rounded-t-3xl sheet, NO scroll */}
+      {/* Desktop: fixed-width right panel, full height */}
       <div
         className={cn(
-          /* mobile: negative margin pulls sheet up over poster bottom */
-          '-mt-8 md:mt-0',
-          'relative z-10',
+          'relative z-10 flex-shrink-0',
+          /* mobile: fixed height sheet — sized to fit all form content */
+          'h-[58vh] md:h-auto',
           /* mobile: rounded top sheet */
           'rounded-t-3xl md:rounded-none',
-          /* sizing */
-          'w-full md:w-[440px] lg:w-[480px] md:flex-shrink-0',
+          /* desktop width */
+          'w-full md:w-[440px] lg:w-[480px]',
           /* glass */
           'bg-[#0c0c1a]/96 backdrop-blur-2xl',
-          /* desktop: left border separator */
+          /* desktop: left border */
           'md:border-l md:border-white/[0.06]',
-          /* flex column so content can scroll on very small phones */
           'flex flex-col',
         )}
       >
         {/* Drag handle — mobile only */}
-        <div className="md:hidden flex justify-center pt-3 pb-1">
+        <div className="md:hidden flex justify-center pt-3 pb-0 flex-shrink-0">
           <div className="w-10 h-1 rounded-full bg-white/[0.15]" />
         </div>
 
-        {/* Scrollable inner */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12 overflow-y-auto">
+        {/* Form content — centred, NO overflow scroll */}
+        <div className="flex-1 flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-12 py-5 md:py-12 overflow-hidden">
           {children}
         </div>
       </div>
@@ -417,17 +413,17 @@ export function LoginPage() {
     <AuthMobileLayout>
       <AuthForm>
         {/* Heading */}
-        <div className="mb-7 auth-card-item" style={{ animationDelay: '60ms' }}>
+        <div className="mb-4 auth-card-item" style={{ animationDelay: '60ms' }}>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
             Welcome back
           </h1>
-          <p className="text-white/38 text-sm mt-1.5">Sign in to continue to Filmino</p>
+          <p className="text-white/38 text-sm mt-1">Sign in to continue to Filmino</p>
         </div>
 
         <ErrorBanner message={error} />
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-4 auth-card-item" style={{ animationDelay: '130ms' }}>
+          <div className="space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
 
             <Field label="Email address">
               <InputField
@@ -471,7 +467,7 @@ export function LoginPage() {
               </button>
             </div>
 
-            <div className="pt-1">
+            <div>
               <PrimaryButton loading={loading} type="submit">
                 {!loading && <>Sign In <ArrowRight className="h-4 w-4" /></>}
               </PrimaryButton>
@@ -479,7 +475,11 @@ export function LoginPage() {
           </div>
         </form>
 
-        <Divider />
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-white/[0.07]" />
+          <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
+          <div className="flex-1 h-px bg-white/[0.07]" />
+        </div>
 
         <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Don't have an account?{' '}
@@ -569,17 +569,17 @@ export function SignupPage() {
     <AuthMobileLayout>
       <AuthForm>
         {/* Heading */}
-        <div className="mb-7 auth-card-item" style={{ animationDelay: '60ms' }}>
+        <div className="mb-4 auth-card-item" style={{ animationDelay: '60ms' }}>
           <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
             Create account
           </h1>
-          <p className="text-white/38 text-sm mt-1.5">Join Filmino and start tracking</p>
+          <p className="text-white/38 text-sm mt-1">Join Filmino and start tracking</p>
         </div>
 
         <ErrorBanner message={error} />
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-4 auth-card-item" style={{ animationDelay: '130ms' }}>
+          <div className="space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
 
             <Field label="Username" error={errors.username}>
               <InputField
@@ -621,14 +621,14 @@ export function SignupPage() {
 
             {form.password.length > 0 && <PasswordStrength password={form.password} />}
 
-            <p className="text-[11px] text-white/18 leading-relaxed">
+            <p className="text-[11px] text-white/18 leading-none">
               By creating an account you agree to our{' '}
-              <span className="text-white/32 hover:text-indigo-400 cursor-pointer transition-colors">Terms of Service</span>
+              <span className="text-white/32 hover:text-indigo-400 cursor-pointer transition-colors">Terms</span>
               {' '}and{' '}
               <span className="text-white/32 hover:text-indigo-400 cursor-pointer transition-colors">Privacy Policy</span>.
             </p>
 
-            <div className="pt-1">
+            <div>
               <PrimaryButton loading={loading} type="submit">
                 {!loading && <>Create Account <ArrowRight className="h-4 w-4" /></>}
               </PrimaryButton>
@@ -636,7 +636,11 @@ export function SignupPage() {
           </div>
         </form>
 
-        <Divider />
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-white/[0.07]" />
+          <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
+          <div className="flex-1 h-px bg-white/[0.07]" />
+        </div>
 
         <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Already have an account?{' '}
