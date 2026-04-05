@@ -12,7 +12,7 @@ export default function MainLayout() {
 
       {/* No top padding on home so hero bleeds under transparent nav */}
       <main
-        className={`flex-1 pb-[70px] md:pb-0 page-enter ${isHome ? '' : 'pt-16'}`}
+        className={`flex-1 pb-[70px] md:pb-0 page-enter bg-[#0B0B0F] ${isHome ? '' : 'pt-16'}`}
         key={location.pathname}
       >
         <Outlet />

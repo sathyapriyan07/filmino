@@ -111,6 +111,55 @@
   /* ── Container ── */
   .container-page { @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16; }
 
+  /* ── OTT page container ── */
+  .ott-container { @apply max-w-[1280px] mx-auto px-6 md:px-12; }
+
+  /* ── Section spacing ── */
+  .section-gap { @apply py-12 md:py-16; }
+
+  /* ── Cinematic text ── */
+  .text-cinematic { letter-spacing: -0.03em; }
+
+  /* ── Chip / pill filter ── */
+  .filter-chip {
+    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium
+           border transition-all duration-200 cursor-pointer select-none;
+  }
+  .filter-chip-active {
+    @apply bg-white text-black border-white;
+  }
+  .filter-chip-inactive {
+    @apply bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20;
+  }
+
+  /* ── Detail hero ── */
+  .detail-hero-gradient {
+    background: linear-gradient(
+      to right,
+      rgba(11,11,15,0.95) 0%,
+      rgba(11,11,15,0.75) 45%,
+      rgba(11,11,15,0.20) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(11,11,15,1) 0%,
+      rgba(11,11,15,0.4) 40%,
+      transparent 100%
+    );
+  }
+
+  /* ── Tab underline ── */
+  .ott-tab {
+    @apply relative px-1 py-3 text-sm font-medium transition-colors duration-200 whitespace-nowrap;
+  }
+  .ott-tab::after {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-white scale-x-0 transition-transform duration-200;
+  }
+  .ott-tab-active { @apply text-white; }
+  .ott-tab-active::after { @apply scale-x-100; }
+  .ott-tab-inactive { @apply text-white/40 hover:text-white/70; }
+
   /* ── Elevation layers ── */
   .surface-1 { background: hsl(var(--card)); }
   .surface-2 { background: hsl(var(--card-elevated)); }
