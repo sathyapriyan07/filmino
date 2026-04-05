@@ -25,9 +25,9 @@ export default function SearchBar({ className = '', autoFocus = false }) {
   const navigate = useNavigate()
 
   const allResults = [
-    ...results.movies.map(m  => ({ ...m, _href: `/movie/${m.id}`,   _title: m.title, _year: m.release_date?.slice(0,4) })),
-    ...results.series.map(s  => ({ ...s, _href: `/series/${s.id}`,  _title: s.name,  _year: s.first_air_date?.slice(0,4) })),
-    ...results.persons.map(p => ({ ...p, _href: `/person/${p.id}`,  _title: p.name })),
+    ...results.movies.map(m  => ({ ...m, _href: `/movie/${m.id}`,  _title: m.title, _year: m.release_date?.slice(0,4) })),
+    ...results.series.map(s  => ({ ...s, _href: `/series/${s.id}`, _title: s.name,  _year: s.first_air_date?.slice(0,4) })),
+    ...results.persons.map(p => ({ ...p, _href: `/person/${p.id}`, _title: p.name })),
   ]
 
   const search = useCallback(debounce(async (q) => {
@@ -76,16 +76,16 @@ export default function SearchBar({ className = '', autoFocus = false }) {
   const clearQuery = () => { setQuery(''); setResults({ movies: [], series: [], persons: [] }); inputRef.current?.focus() }
 
   const groups = [
-    { key: 'movies',  label: 'Movies', icon: Film, color: 'text-blue-400',   offset: 0 },
-    { key: 'series',  label: 'Series', icon: Tv,   color: 'text-violet-400', offset: results.movies.length },
-    { key: 'persons', label: 'People', icon: User, color: 'text-emerald-400',offset: results.movies.length + results.series.length },
+    { key: 'movies',  label: 'Movies', icon: Film, color: 'text-blue-400',    offset: 0 },
+    { key: 'series',  label: 'Series', icon: Tv,   color: 'text-violet-400',  offset: results.movies.length },
+    { key: 'persons', label: 'People', icon: User, color: 'text-emerald-400', offset: results.movies.length + results.series.length },
   ]
 
   return (
     <div ref={ref} className={cn('relative', className)}>
       <form onSubmit={handleSubmit}>
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
           <input
             ref={inputRef}
             value={query}
@@ -96,15 +96,15 @@ export default function SearchBar({ className = '', autoFocus = false }) {
             autoComplete="off"
             className={cn(
               'w-full h-10 pl-10 pr-10 rounded-xl text-sm',
-              'bg-secondary/50 border border-border/50',
-              'placeholder:text-muted-foreground/50 text-foreground',
-              'focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/30 focus:bg-background/80',
-              'transition-all duration-250 ease-smooth'
+              'bg-white/8 border border-white/10',
+              'placeholder:text-white/30 text-white',
+              'focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/30 focus:bg-white/12',
+              'transition-all duration-250'
             )}
           />
           {query && (
             <button type="button" onClick={clearQuery}
-              className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/30 text-muted-foreground transition-colors">
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white/60 transition-colors">
               <X className="h-3 w-3" />
             </button>
           )}
@@ -113,48 +113,44 @@ export default function SearchBar({ className = '', autoFocus = false }) {
 
       {/* ── Dropdown ── */}
       {open && (
-        <div className="absolute top-full mt-2 w-full min-w-[300px] bg-card/95 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-card-xl z-50 overflow-hidden animate-scale-in">
+        <div className="absolute top-full mt-2 w-full min-w-[300px] glass-dark rounded-2xl shadow-card-xl z-50 overflow-hidden animate-scale-in border border-white/10">
 
-          {/* Loading */}
           {loading && (
-            <div className="flex items-center gap-2.5 px-4 py-3.5 text-sm text-muted-foreground">
-              <div className="h-3.5 w-3.5 rounded-full border-[1.5px] border-muted-foreground/20 border-t-primary animate-spin flex-shrink-0" />
+            <div className="flex items-center gap-2.5 px-4 py-3.5 text-sm text-white/40">
+              <div className="h-3.5 w-3.5 rounded-full border-[1.5px] border-white/15 border-t-indigo-400 animate-spin flex-shrink-0" />
               Searching…
             </div>
           )}
 
-          {/* Recent searches */}
           {!loading && !query && recent.length > 0 && (
             <div className="py-2">
               <div className="flex items-center justify-between px-4 py-1.5">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold text-white/30 uppercase tracking-widest flex items-center gap-1.5">
                   <Clock className="h-3 w-3" /> Recent
                 </span>
                 <button onClick={() => { localStorage.removeItem(RECENT_KEY); setRecent([]) }}
-                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                  className="text-[10px] text-white/30 hover:text-white/60 transition-colors">
                   Clear
                 </button>
               </div>
               {recent.map(r => (
                 <button key={r} onClick={() => { setQuery(r); search(r) }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/60 transition-colors text-left">
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" />
-                  <span className="text-sm text-foreground">{r}</span>
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/8 transition-colors text-left">
+                  <Clock className="h-3.5 w-3.5 text-white/25 flex-shrink-0" />
+                  <span className="text-sm text-white/70">{r}</span>
                 </button>
               ))}
             </div>
           )}
 
-          {/* No results */}
           {!loading && query && !hasResults && (
             <div className="px-4 py-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                No results for <span className="text-foreground font-medium">"{query}"</span>
+              <p className="text-sm text-white/35">
+                No results for <span className="text-white font-medium">"{query}"</span>
               </p>
             </div>
           )}
 
-          {/* Results */}
           {!loading && hasResults && (
             <div className="max-h-[400px] overflow-y-auto py-2">
               {groups.map(({ key, label, icon: Icon, color, offset }) => {
@@ -176,24 +172,24 @@ export default function SearchBar({ className = '', autoFocus = false }) {
                         <Link key={item.id} to={href}
                           onClick={() => { setOpen(false); setQuery(''); saveRecent(title); setRecent(getRecent()) }}
                           className={cn(
-                            'flex items-center gap-3 px-4 py-2 hover:bg-accent/60 transition-colors',
-                            activeIdx === idx && 'bg-accent/60'
+                            'flex items-center gap-3 px-4 py-2 hover:bg-white/8 transition-colors',
+                            activeIdx === idx && 'bg-white/8'
                           )}>
-                          <div className="w-8 h-11 rounded-lg overflow-hidden bg-muted flex-shrink-0 shadow-inner-sm">
+                          <div className="w-8 h-11 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
                             {(item.poster || item.profile_image)
                               ? <img src={item.poster || item.profile_image} alt={title} className="w-full h-full object-cover" loading="lazy" />
-                              : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs font-medium">{title?.[0]}</div>
+                              : <div className="w-full h-full flex items-center justify-center text-white/20 text-xs font-medium">{title?.[0]}</div>
                             }
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium line-clamp-1 text-foreground">{title}</p>
+                            <p className="text-sm font-medium line-clamp-1 text-white/85">{title}</p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              {year && <span className="text-xs text-muted-foreground">{year}</span>}
+                              {year && <span className="text-xs text-white/30">{year}</span>}
                               {item.vote_average > 0 && (
-                                <span className="text-xs text-amber-500 font-medium">★ {item.vote_average.toFixed(1)}</span>
+                                <span className="text-xs text-amber-400 font-medium">★ {item.vote_average.toFixed(1)}</span>
                               )}
                               {item.known_for_department && (
-                                <span className="text-xs text-muted-foreground">{item.known_for_department}</span>
+                                <span className="text-xs text-white/30">{item.known_for_department}</span>
                               )}
                             </div>
                           </div>
@@ -206,13 +202,12 @@ export default function SearchBar({ className = '', autoFocus = false }) {
             </div>
           )}
 
-          {/* Footer */}
           {query && (
-            <div className="border-t border-border/40">
+            <div className="border-t border-white/8">
               <Link
                 to={`/search?q=${encodeURIComponent(query)}`}
                 onClick={() => { setOpen(false); saveRecent(query); setRecent(getRecent()); setQuery('') }}
-                className="flex items-center justify-between px-4 py-3 text-sm text-primary hover:bg-primary/6 transition-colors font-medium"
+                className="flex items-center justify-between px-4 py-3 text-sm text-indigo-400 hover:bg-white/5 transition-colors font-medium"
               >
                 <span>See all results for "<span className="font-semibold">{query}</span>"</span>
                 <ArrowRight className="h-4 w-4 flex-shrink-0" />
