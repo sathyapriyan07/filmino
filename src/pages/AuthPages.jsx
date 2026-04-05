@@ -9,12 +9,13 @@ import { supabase } from '../services/supabase'
 import { cn } from '../utils/helpers'
 
 /* ─────────────────────────────────────────────────────────
-   POSTER COLLAGE
-   Fetches real posters; renders a tilted grid behind the
-   left branding panel. Reduced opacity + stronger overlays
-   so text is always readable.
+   POSTER BACKGROUND
+   Mobile: fills top section (45vh).
+   Desktop: fills entire left panel.
+   Two separate column counts keep mobile tight (3 cols)
+   and desktop lush (6 cols).
 ───────────────────────────────────────────────────────── */
-function PosterCollage() {
+function PosterBackground({ className = '' }) {
   const [posters, setPosters] = useState([])
 
   useEffect(() => {
@@ -23,86 +24,82 @@ function PosterCollage() {
       .select('poster')
       .not('poster', 'is', null)
       .order('popularity', { ascending: false })
-      .limit(48)
+      .limit(54)
       .then(({ data }) => setPosters((data || []).map(d => d.poster)))
   }, [])
 
-  const COLS  = 6
-  const COUNT = 42
+  /* stagger heights so adjacent columns feel organic */
+  const colOffsets = ['mt-0', '-mt-8', 'mt-4', '-mt-12', 'mt-2', '-mt-6']
 
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* Tilted poster grid */}
-      <div
-        className="absolute inset-[-20%]"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-          gap: '8px',
-          transform: 'rotate(-8deg) scale(1.25)',
-        }}
-      >
-        {Array.from({ length: COUNT }).map((_, i) => (
+    <div className={cn('absolute inset-0 overflow-hidden', className)} aria-hidden="true">
+      {/* ── Poster grid ── */}
+      <div className="absolute inset-[-10%] flex gap-2 auth-poster-drift">
+        {[0, 1, 2, 3, 4, 5].map(col => (
           <div
-            key={i}
-            className="aspect-[2/3] rounded-xl overflow-hidden bg-white/[0.04]"
+            key={col}
+            className={cn('flex flex-col gap-2 flex-1', colOffsets[col])}
           >
-            {posters[i % Math.max(posters.length, 1)] && (
-              <img
-                src={posters[i % posters.length]}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                /* ↓ reduced from 0.60 → 0.35 so text is legible */
-                className="w-full h-full object-cover opacity-[0.35] transition-opacity duration-700"
-              />
-            )}
+            {Array.from({ length: 9 }).map((_, row) => {
+              const idx = col * 9 + row
+              const src = posters.length ? posters[idx % posters.length] : null
+              return (
+                <div
+                  key={row}
+                  className="aspect-[2/3] rounded-xl overflow-hidden bg-white/[0.04] flex-shrink-0"
+                >
+                  {src && (
+                    <img
+                      src={src}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover opacity-[0.40]"
+                    />
+                  )}
+                </div>
+              )
+            })}
           </div>
         ))}
       </div>
 
-      {/* Layer stack — darkens the grid progressively */}
-      {/* Base dark fill */}
-      <div className="absolute inset-0 bg-black/70" />
-      {/* Radial vignette — darkest at edges */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at 60% 50%, transparent 20%, rgba(0,0,0,0.55) 80%)',
-        }}
-      />
-      {/* Left-to-right split: left stays visible, right fades to near-black */}
-      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-black/20 via-black/50 to-black/95" />
-      {/* Top + bottom fades */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60" />
+      {/* ── Overlay stack ── */}
+      {/* base dark */}
+      <div className="absolute inset-0 bg-black/60" />
+      {/* bottom-to-top fade — critical for mobile so form reads cleanly */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/95" />
+      {/* top vignette */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent h-1/3" />
+      {/* desktop: right-side fade so form panel has clean bg */}
+      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-black/20 to-black/95" />
     </div>
   )
 }
 
 /* ─────────────────────────────────────────────────────────
-   FLOATING STATS — decorative badges on the left panel
+   FLOATING STATS  (desktop left panel only)
 ───────────────────────────────────────────────────────── */
 function FloatingStats() {
-  const stats = [
-    { icon: Film,  label: 'Movies tracked',  value: '10K+' },
-    { icon: Tv,    label: 'Series catalogued', value: '3K+' },
-    { icon: Star,  label: 'Reviews written',  value: '50K+' },
+  const items = [
+    { icon: Film, value: '10K+', label: 'Movies tracked' },
+    { icon: Tv,   value: '3K+',  label: 'Series catalogued' },
+    { icon: Star, value: '50K+', label: 'Reviews written' },
   ]
   return (
     <div className="flex flex-col gap-3 mt-8">
-      {stats.map(({ icon: Icon, label, value }, i) => (
+      {items.map(({ icon: Icon, value, label }, i) => (
         <div
           key={label}
           className="flex items-center gap-3 auth-stat-item"
-          style={{ animationDelay: `${300 + i * 100}ms` }}
+          style={{ animationDelay: `${320 + i * 90}ms` }}
         >
           <div className="h-8 w-8 rounded-lg bg-white/[0.08] border border-white/[0.10] flex items-center justify-center flex-shrink-0">
-            <Icon className="h-3.5 w-3.5 text-white/60" />
+            <Icon className="h-3.5 w-3.5 text-white/55" />
           </div>
           <div>
-            <div className="text-white font-bold text-sm leading-none">{value}</div>
-            <div className="text-white/40 text-xs mt-0.5">{label}</div>
+            <p className="text-white font-bold text-sm leading-none">{value}</p>
+            <p className="text-white/38 text-xs mt-0.5">{label}</p>
           </div>
         </div>
       ))}
@@ -111,46 +108,48 @@ function FloatingStats() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   AUTH INPUT — icon + error state + autofill fix
+   INPUT FIELD  (reusable)
 ───────────────────────────────────────────────────────── */
-const AuthInput = ({ icon: Icon, error, className, ...props }) => (
-  <div className="relative">
-    {Icon && (
-      <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none z-10" />
-    )}
-    <input
-      className={cn(
-        'auth-input w-full h-12 rounded-xl text-sm text-white',
-        'bg-white/[0.07] border border-white/[0.10]',
-        'placeholder:text-white/25',
-        Icon ? 'pl-10 pr-4' : 'px-4',
-        'focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/40 focus:bg-white/[0.11]',
-        'transition-all duration-200',
-        'disabled:opacity-40 disabled:cursor-not-allowed',
-        error && 'border-red-500/50 focus:ring-red-500/40 focus:border-red-500/40',
-        className
+export function InputField({ icon: Icon, error, className, ...props }) {
+  return (
+    <div className="relative">
+      {Icon && (
+        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/28 pointer-events-none z-10" />
       )}
-      {...props}
-    />
-  </div>
-)
+      <input
+        className={cn(
+          'auth-input w-full h-12 rounded-xl text-sm text-white',
+          'bg-white/[0.06] border border-white/[0.10]',
+          'placeholder:text-white/22',
+          Icon ? 'pl-10 pr-4' : 'px-4',
+          'focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/40 focus:bg-white/[0.10]',
+          'transition-all duration-200',
+          'disabled:opacity-40 disabled:cursor-not-allowed',
+          error && 'border-red-500/50 focus:ring-red-500/40 focus:border-red-500/40',
+          className
+        )}
+        {...props}
+      />
+    </div>
+  )
+}
 
 /* ─────────────────────────────────────────────────────────
-   PASSWORD INPUT — show / hide toggle
+   PASSWORD FIELD  (show/hide toggle)
 ───────────────────────────────────────────────────────── */
-function PasswordInput({ error, ...props }) {
+function PasswordField({ error, ...props }) {
   const [show, setShow] = useState(false)
   return (
     <div className="relative">
-      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none z-10" />
+      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/28 pointer-events-none z-10" />
       <input
         type={show ? 'text' : 'password'}
         className={cn(
           'auth-input w-full h-12 rounded-xl text-sm text-white',
-          'bg-white/[0.07] border border-white/[0.10]',
-          'placeholder:text-white/25',
+          'bg-white/[0.06] border border-white/[0.10]',
+          'placeholder:text-white/22',
           'pl-10 pr-11',
-          'focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/40 focus:bg-white/[0.11]',
+          'focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/40 focus:bg-white/[0.10]',
           'transition-all duration-200',
           'disabled:opacity-40 disabled:cursor-not-allowed',
           error && 'border-red-500/50 focus:ring-red-500/40 focus:border-red-500/40'
@@ -159,10 +158,10 @@ function PasswordInput({ error, ...props }) {
       />
       <button
         type="button"
-        onClick={() => setShow(v => !v)}
         tabIndex={-1}
+        onClick={() => setShow(v => !v)}
         aria-label={show ? 'Hide password' : 'Show password'}
-        className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.08] transition-all duration-150"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center rounded-lg text-white/28 hover:text-white/65 hover:bg-white/[0.07] transition-all duration-150"
       >
         {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
       </button>
@@ -171,18 +170,18 @@ function PasswordInput({ error, ...props }) {
 }
 
 /* ─────────────────────────────────────────────────────────
-   FIELD WRAPPER — label + input + inline error
+   FIELD WRAPPER  (label + input + error)
 ───────────────────────────────────────────────────────── */
 function Field({ label, error, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] font-semibold text-white/45 uppercase tracking-[0.08em]">
+      <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-[0.09em]">
         {label}
       </label>
       {children}
       {error && (
-        <p className="text-[11px] text-red-400/90 flex items-center gap-1 pl-0.5">
-          <span>⚠</span> {error}
+        <p className="text-[11px] text-red-400/85 flex items-center gap-1 pl-0.5">
+          <span aria-hidden>⚠</span> {error}
         </p>
       )}
     </div>
@@ -190,32 +189,35 @@ function Field({ label, error, children }) {
 }
 
 /* ─────────────────────────────────────────────────────────
-   AUTH BUTTON — primary CTA with glow + loading state
+   PRIMARY BUTTON  (gradient + glow)
 ───────────────────────────────────────────────────────── */
-function AuthButton({ loading, children, ...props }) {
+export function PrimaryButton({ loading, children, className, ...props }) {
   return (
     <button
       disabled={loading}
       className={cn(
-        'relative w-full h-12 rounded-xl font-semibold text-sm text-white',
-        'bg-primary',
+        'relative w-full h-12 min-h-[44px] rounded-xl',
+        'font-semibold text-sm text-white',
         'flex items-center justify-center gap-2',
-        'shadow-[0_0_24px_rgba(99,102,241,0.40)]',
-        'hover:brightness-110 hover:shadow-[0_0_32px_rgba(99,102,241,0.60)] hover:scale-[1.012]',
-        'active:scale-[0.985]',
+        /* gradient */
+        'bg-gradient-to-r from-indigo-500 to-purple-500',
+        /* glow */
+        'shadow-[0_0_22px_rgba(99,102,241,0.38)]',
+        /* hover */
+        'hover:brightness-110 hover:scale-[1.013] hover:shadow-[0_0_30px_rgba(99,102,241,0.55)]',
+        /* active */
+        'active:scale-[0.984]',
         'transition-all duration-200 ease-out',
-        'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-black/50',
+        'focus:outline-none focus:ring-2 focus:ring-indigo-400/50 focus:ring-offset-2 focus:ring-offset-black/40',
         'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:brightness-100 disabled:shadow-none',
-        'min-h-[44px]'
+        className
       )}
       {...props}
     >
-      {loading ? (
-        <>
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>{typeof children === 'string' ? `${children}…` : 'Loading…'}</span>
-        </>
-      ) : children}
+      {loading
+        ? <><Loader2 className="h-4 w-4 animate-spin" /><span>Loading…</span></>
+        : children
+      }
     </button>
   )
 }
@@ -228,9 +230,9 @@ function ErrorBanner({ message }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 bg-red-500/[0.12] border border-red-500/25 text-red-300 text-xs rounded-xl px-3.5 py-3 animate-fade-up"
+      className="flex items-start gap-2.5 bg-red-500/[0.11] border border-red-500/22 text-red-300 text-xs rounded-xl px-3.5 py-3 animate-fade-up mb-5"
     >
-      <span className="flex-shrink-0 mt-px">⚠</span>
+      <span className="flex-shrink-0 mt-px" aria-hidden>⚠</span>
       <span className="leading-relaxed">{message}</span>
     </div>
   )
@@ -243,90 +245,8 @@ function Divider() {
   return (
     <div className="flex items-center gap-3 my-5">
       <div className="flex-1 h-px bg-white/[0.07]" />
-      <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.12em]">or</span>
+      <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
       <div className="flex-1 h-px bg-white/[0.07]" />
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────────────────
-   AUTH LAYOUT — full-screen cinematic split
-───────────────────────────────────────────────────────── */
-function AuthLayout({ children }) {
-  return (
-    <div className="min-h-screen bg-[#080810] flex overflow-hidden">
-
-      {/* ── LEFT: Branding panel (desktop only) ── */}
-      <div className="hidden md:flex relative flex-1 flex-col overflow-hidden">
-        <PosterCollage />
-
-        {/* Branding content — sits above all overlays */}
-        <div className="relative z-10 flex flex-col justify-between h-full p-10 lg:p-14">
-          {/* Top logo */}
-          <div className="auth-brand-item" style={{ animationDelay: '100ms' }}>
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-[10px] bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.50)]">
-                <Clapperboard className="h-4.5 w-4.5 text-white" />
-              </div>
-              <span className="text-xl font-black text-white tracking-tight">Filmino</span>
-            </div>
-          </div>
-
-          {/* Bottom tagline + stats */}
-          <div className="max-w-xs">
-            <div className="auth-brand-item" style={{ animationDelay: '200ms' }}>
-              <h2 className="text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
-                Your personal<br />
-                <span className="text-primary">cinema</span> awaits.
-              </h2>
-              <p className="text-white/45 text-sm mt-3 leading-relaxed">
-                Discover, track, and review every movie and series you love — all in one place.
-              </p>
-            </div>
-            <FloatingStats />
-          </div>
-        </div>
-      </div>
-
-      {/* ── RIGHT: Form panel ── */}
-      <div className="relative w-full md:w-[440px] lg:w-[480px] flex-shrink-0 flex flex-col">
-        {/* Mobile: poster bg */}
-        <div className="md:hidden absolute inset-0">
-          <PosterCollage />
-        </div>
-
-        {/* Glass panel */}
-        <div
-          className={cn(
-            'relative z-10 flex-1 flex flex-col justify-center',
-            'px-6 sm:px-10 md:px-10 lg:px-12 py-10',
-            /* desktop: solid dark panel */
-            'md:bg-[#0d0d18]/95 md:backdrop-blur-2xl md:border-l md:border-white/[0.06]',
-            /* mobile: glass over poster */
-            'bg-black/80 backdrop-blur-2xl',
-          )}
-        >
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────────────────
-   AUTH CARD — staggered entrance animation wrapper
-───────────────────────────────────────────────────────── */
-function AuthCard({ children }) {
-  return (
-    <div className="w-full max-w-sm mx-auto md:max-w-none">
-      {/* Mobile logo */}
-      <div className="flex items-center gap-2.5 mb-8 md:hidden auth-card-item" style={{ animationDelay: '0ms' }}>
-        <div className="h-8 w-8 rounded-[8px] bg-primary flex items-center justify-center shadow-[0_0_14px_rgba(99,102,241,0.45)]">
-          <Clapperboard className="h-4 w-4 text-white" />
-        </div>
-        <span className="text-lg font-black text-white tracking-tight">Filmino</span>
-      </div>
-      {children}
     </div>
   )
 }
@@ -335,35 +255,131 @@ function AuthCard({ children }) {
    PASSWORD STRENGTH
 ───────────────────────────────────────────────────────── */
 function PasswordStrength({ password }) {
-  const checks = [
+  const score = [
     password.length >= 8,
     /[A-Z]/.test(password),
     /[0-9]/.test(password),
     /[^A-Za-z0-9]/.test(password),
-  ]
-  const score  = checks.filter(Boolean).length
-  const colors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-emerald-400']
-  const labels = ['Weak', 'Fair', 'Good', 'Strong']
-  const textColors = ['text-red-400', 'text-orange-400', 'text-yellow-400', 'text-emerald-400']
+  ].filter(Boolean).length
+
+  const bar   = ['bg-red-500',  'bg-orange-400', 'bg-yellow-400', 'bg-emerald-400']
+  const text  = ['text-red-400','text-orange-400','text-yellow-400','text-emerald-400']
+  const label = ['Weak',        'Fair',           'Good',          'Strong']
 
   return (
-    <div className="space-y-1.5 animate-fade-up">
+    <div className="space-y-1.5">
       <div className="flex gap-1">
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            className={cn(
-              'h-1 flex-1 rounded-full transition-all duration-300',
-              i < score ? colors[score - 1] : 'bg-white/[0.08]'
-            )}
-          />
+        {[0,1,2,3].map(i => (
+          <div key={i} className={cn('h-1 flex-1 rounded-full transition-all duration-300', i < score ? bar[score-1] : 'bg-white/[0.08]')} />
         ))}
       </div>
-      {score > 0 && (
-        <p className={cn('text-[11px] pl-0.5 font-medium', textColors[score - 1])}>
-          {labels[score - 1]} password
-        </p>
-      )}
+      {score > 0 && <p className={cn('text-[11px] font-medium pl-0.5', text[score-1])}>{label[score-1]} password</p>}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
+   AUTH MOBILE LAYOUT
+   ┌──────────────────────────────┐
+   │  PosterBackground  (45vh)    │  ← mobile top
+   ├──────────────────────────────┤
+   │  Form sheet  (rounded-t-3xl) │  ← mobile bottom
+   └──────────────────────────────┘
+   On md+ switches to side-by-side split.
+───────────────────────────────────────────────────────── */
+export function AuthMobileLayout({ children }) {
+  return (
+    <div className="min-h-screen bg-[#07070f] flex flex-col md:flex-row overflow-hidden">
+
+      {/* ── POSTER SECTION ── */}
+      {/* Mobile: fixed height top band */}
+      {/* Desktop: full-height left panel */}
+      <div className="relative h-[42vh] md:h-auto md:flex-1 flex-shrink-0 overflow-hidden">
+        <PosterBackground />
+
+        {/* Desktop branding — sits above overlays */}
+        <div className="hidden md:flex relative z-10 flex-col justify-between h-full p-10 lg:p-14">
+          {/* Logo top-left */}
+          <div className="auth-brand-item" style={{ animationDelay: '80ms' }}>
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-[10px] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_18px_rgba(99,102,241,0.50)]">
+                <Clapperboard className="h-4.5 w-4.5 text-white" />
+              </div>
+              <span className="text-xl font-black text-white tracking-tight">Filmino</span>
+            </div>
+          </div>
+
+          {/* Tagline + stats bottom-left */}
+          <div className="max-w-[280px]">
+            <div className="auth-brand-item" style={{ animationDelay: '180ms' }}>
+              <h2 className="text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
+                Your personal<br />
+                <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                  cinema
+                </span>{' '}awaits.
+              </h2>
+              <p className="text-white/40 text-sm mt-3 leading-relaxed">
+                Discover, track, and review every movie and series you love.
+              </p>
+            </div>
+            <FloatingStats />
+          </div>
+        </div>
+
+        {/* Mobile logo — centred over poster */}
+        <div className="md:hidden absolute inset-0 flex flex-col items-center justify-center z-10 pb-8">
+          <div className="auth-brand-item" style={{ animationDelay: '0ms' }}>
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_24px_rgba(99,102,241,0.55)]">
+                <Clapperboard className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-black text-white tracking-tight drop-shadow-lg">Filmino</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── FORM SECTION ── */}
+      {/* Mobile: rounded-t-3xl sheet that slides up over the poster */}
+      {/* Desktop: fixed-width right panel */}
+      <div
+        className={cn(
+          /* mobile: negative margin pulls sheet up over poster bottom */
+          '-mt-8 md:mt-0',
+          'relative z-10',
+          /* mobile: rounded top sheet */
+          'rounded-t-3xl md:rounded-none',
+          /* sizing */
+          'w-full md:w-[440px] lg:w-[480px] md:flex-shrink-0',
+          /* glass */
+          'bg-[#0c0c1a]/96 backdrop-blur-2xl',
+          /* desktop: left border separator */
+          'md:border-l md:border-white/[0.06]',
+          /* flex column so content can scroll on very small phones */
+          'flex flex-col',
+        )}
+      >
+        {/* Drag handle — mobile only */}
+        <div className="md:hidden flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-white/[0.15]" />
+        </div>
+
+        {/* Scrollable inner */}
+        <div className="flex-1 flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-12 py-8 md:py-12 overflow-y-auto">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
+   AUTH FORM WRAPPER  (stagger container)
+───────────────────────────────────────────────────────── */
+function AuthForm({ children }) {
+  return (
+    <div className="w-full max-w-sm mx-auto md:max-w-none auth-form-enter">
+      {children}
     </div>
   )
 }
@@ -377,8 +393,8 @@ export function LoginPage() {
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const { signIn, user } = useAuthStore()
-  const navigate  = useNavigate()
-  const emailRef  = useRef(null)
+  const navigate = useNavigate()
+  const emailRef = useRef(null)
 
   useEffect(() => { if (user) navigate('/') }, [user])
   useEffect(() => { emailRef.current?.focus() }, [])
@@ -398,28 +414,23 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout>
-      <AuthCard>
+    <AuthMobileLayout>
+      <AuthForm>
         {/* Heading */}
         <div className="mb-7 auth-card-item" style={{ animationDelay: '60ms' }}>
-          <h1 className="text-2xl md:text-[1.75rem] font-black text-white tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
             Welcome back
           </h1>
-          <p className="text-white/40 text-sm mt-1.5">Sign in to continue to Filmino</p>
+          <p className="text-white/38 text-sm mt-1.5">Sign in to continue to Filmino</p>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mb-5">
-            <ErrorBanner message={error} />
-          </div>
-        )}
+        <ErrorBanner message={error} />
 
-        {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-4 auth-card-item" style={{ animationDelay: '120ms' }}>
+          <div className="space-y-4 auth-card-item" style={{ animationDelay: '130ms' }}>
+
             <Field label="Email address">
-              <AuthInput
+              <InputField
                 ref={emailRef}
                 icon={Mail}
                 type="email"
@@ -432,7 +443,7 @@ export function LoginPage() {
             </Field>
 
             <Field label="Password">
-              <PasswordInput
+              <PasswordField
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -442,49 +453,45 @@ export function LoginPage() {
             </Field>
 
             {/* Remember + Forgot */}
-            <div className="flex items-center justify-between pt-0.5">
+            <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer group select-none">
                 <input
                   type="checkbox"
-                  className="h-3.5 w-3.5 rounded border-white/20 bg-white/[0.07] accent-primary cursor-pointer"
+                  className="h-3.5 w-3.5 rounded border-white/20 bg-white/[0.06] accent-indigo-500 cursor-pointer"
                 />
-                <span className="text-xs text-white/35 group-hover:text-white/55 transition-colors">
+                <span className="text-xs text-white/32 group-hover:text-white/52 transition-colors">
                   Remember me
                 </span>
               </label>
               <button
                 type="button"
-                className="text-xs text-white/35 hover:text-primary transition-colors duration-200 min-h-[44px] flex items-center"
+                className="text-xs text-white/32 hover:text-indigo-400 transition-colors duration-200 min-h-[44px] flex items-center"
               >
                 Forgot password?
               </button>
             </div>
 
-            {/* Submit */}
             <div className="pt-1">
-              <AuthButton loading={loading} type="submit">
-                {!loading && (
-                  <>Sign In <ArrowRight className="h-4 w-4" /></>
-                )}
-              </AuthButton>
+              <PrimaryButton loading={loading} type="submit">
+                {!loading && <>Sign In <ArrowRight className="h-4 w-4" /></>}
+              </PrimaryButton>
             </div>
           </div>
         </form>
 
         <Divider />
 
-        {/* Sign up link */}
-        <p className="text-center text-sm text-white/35 auth-card-item" style={{ animationDelay: '200ms' }}>
+        <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Don't have an account?{' '}
           <Link
             to="/signup"
-            className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200 hover:underline underline-offset-4"
+            className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors duration-200 hover:underline underline-offset-4"
           >
             Create one
           </Link>
         </p>
-      </AuthCard>
-    </AuthLayout>
+      </AuthForm>
+    </AuthMobileLayout>
   )
 }
 
@@ -510,7 +517,7 @@ export function SignupPage() {
     if (!form.password)                e.password = 'Password is required'
     else if (form.password.length < 6) e.password = 'At least 6 characters'
     setErrors(e)
-    return Object.keys(e).length === 0
+    return !Object.keys(e).length
   }
 
   const handleSubmit = async (e) => {
@@ -528,62 +535,54 @@ export function SignupPage() {
     }
   }
 
-  const set = (k) => (e) => {
+  const set = k => e => {
     setForm(f => ({ ...f, [k]: e.target.value }))
-    if (errors[k]) setErrors(prev => ({ ...prev, [k]: '' }))
+    if (errors[k]) setErrors(p => ({ ...p, [k]: '' }))
   }
 
+  /* ── Success state ── */
   if (success) {
     return (
-      <AuthLayout>
-        <div className="w-full max-w-sm mx-auto md:max-w-none text-center animate-fade-up">
+      <AuthMobileLayout>
+        <div className="w-full max-w-sm mx-auto md:max-w-none text-center auth-form-enter">
           <div className="flex justify-center mb-6">
-            <div className="h-16 w-16 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shadow-[0_0_24px_rgba(16,185,129,0.20)]">
+            <div className="h-16 w-16 rounded-full bg-emerald-500/12 border border-emerald-500/22 flex items-center justify-center shadow-[0_0_24px_rgba(16,185,129,0.18)]">
               <CheckCircle2 className="h-8 w-8 text-emerald-400" />
             </div>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">
-            Account created!
-          </h2>
-          <p className="text-white/40 text-sm leading-relaxed mb-8 max-w-xs mx-auto">
-            Your account is pending admin approval. You'll be able to sign in once it's approved.
+          <h2 className="text-2xl font-black text-white mb-3 tracking-tight">Account created!</h2>
+          <p className="text-white/38 text-sm leading-relaxed mb-8 max-w-xs mx-auto">
+            Your account is pending admin approval. You'll be able to sign in once approved.
           </p>
           <Link
             to="/login"
-            className={cn(
-              'inline-flex items-center justify-center gap-2 w-full h-12 rounded-xl min-h-[44px]',
-              'border border-white/[0.12] text-white/60 text-sm font-medium',
-              'hover:bg-white/[0.06] hover:text-white hover:border-white/20 transition-all duration-200'
-            )}
+            className="inline-flex items-center justify-center gap-2 w-full h-12 min-h-[44px] rounded-xl border border-white/[0.12] text-white/55 text-sm font-medium hover:bg-white/[0.05] hover:text-white hover:border-white/20 transition-all duration-200"
           >
             Back to Sign In
           </Link>
         </div>
-      </AuthLayout>
+      </AuthMobileLayout>
     )
   }
 
   return (
-    <AuthLayout>
-      <AuthCard>
+    <AuthMobileLayout>
+      <AuthForm>
         {/* Heading */}
         <div className="mb-7 auth-card-item" style={{ animationDelay: '60ms' }}>
-          <h1 className="text-2xl md:text-[1.75rem] font-black text-white tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
             Create account
           </h1>
-          <p className="text-white/40 text-sm mt-1.5">Join Filmino and start tracking</p>
+          <p className="text-white/38 text-sm mt-1.5">Join Filmino and start tracking</p>
         </div>
 
-        {error && (
-          <div className="mb-5">
-            <ErrorBanner message={error} />
-          </div>
-        )}
+        <ErrorBanner message={error} />
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-4 auth-card-item" style={{ animationDelay: '120ms' }}>
+          <div className="space-y-4 auth-card-item" style={{ animationDelay: '130ms' }}>
+
             <Field label="Username" error={errors.username}>
-              <AuthInput
+              <InputField
                 ref={usernameRef}
                 icon={User}
                 value={form.username}
@@ -596,7 +595,7 @@ export function SignupPage() {
             </Field>
 
             <Field label="Email address" error={errors.email}>
-              <AuthInput
+              <InputField
                 icon={Mail}
                 type="email"
                 value={form.email}
@@ -609,7 +608,7 @@ export function SignupPage() {
             </Field>
 
             <Field label="Password" error={errors.password}>
-              <PasswordInput
+              <PasswordField
                 value={form.password}
                 onChange={set('password')}
                 placeholder="Min. 6 characters"
@@ -620,39 +619,35 @@ export function SignupPage() {
               />
             </Field>
 
-            {form.password.length > 0 && (
-              <PasswordStrength password={form.password} />
-            )}
+            {form.password.length > 0 && <PasswordStrength password={form.password} />}
 
-            <p className="text-[11px] text-white/20 leading-relaxed pt-0.5">
+            <p className="text-[11px] text-white/18 leading-relaxed">
               By creating an account you agree to our{' '}
-              <span className="text-white/35 hover:text-primary cursor-pointer transition-colors">Terms of Service</span>
+              <span className="text-white/32 hover:text-indigo-400 cursor-pointer transition-colors">Terms of Service</span>
               {' '}and{' '}
-              <span className="text-white/35 hover:text-primary cursor-pointer transition-colors">Privacy Policy</span>.
+              <span className="text-white/32 hover:text-indigo-400 cursor-pointer transition-colors">Privacy Policy</span>.
             </p>
 
             <div className="pt-1">
-              <AuthButton loading={loading} type="submit">
-                {!loading && (
-                  <>Create Account <ArrowRight className="h-4 w-4" /></>
-                )}
-              </AuthButton>
+              <PrimaryButton loading={loading} type="submit">
+                {!loading && <>Create Account <ArrowRight className="h-4 w-4" /></>}
+              </PrimaryButton>
             </div>
           </div>
         </form>
 
         <Divider />
 
-        <p className="text-center text-sm text-white/35 auth-card-item" style={{ animationDelay: '200ms' }}>
+        <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Already have an account?{' '}
           <Link
             to="/login"
-            className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200 hover:underline underline-offset-4"
+            className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors duration-200 hover:underline underline-offset-4"
           >
             Sign in
           </Link>
         </p>
-      </AuthCard>
-    </AuthLayout>
+      </AuthForm>
+    </AuthMobileLayout>
   )
 }

@@ -166,46 +166,57 @@
 .page-enter { animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
 
 /* ── Auth page ── */
-@keyframes authPanelIn {
-  from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.animate-auth-panel { animation: authPanelIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-@keyframes authItemIn {
-  from { opacity: 0; transform: translateY(14px); }
+/* Form sheet slides up from bottom on mobile */
+@keyframes authSheetUp {
+  from { opacity: 0; transform: translateY(32px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Staggered entrance for auth card children */
+/* Individual card items stagger in */
+@keyframes authItemIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Poster grid slow upward drift */
+@keyframes posterDrift {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-4%); }
+}
+
+.auth-form-enter {
+  animation: authSheetUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .auth-card-item {
   opacity: 0;
-  animation: authItemIn 0.45s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation: authItemIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Branding panel items */
 .auth-brand-item {
   opacity: 0;
-  animation: authItemIn 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation: authItemIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Floating stat badges */
 .auth-stat-item {
   opacity: 0;
-  animation: authItemIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation: authItemIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Auth input — remove browser default outline, keep custom ring */
-.auth-input:focus {
-  outline: none;
+.auth-poster-drift {
+  animation: posterDrift 18s ease-in-out infinite alternate;
 }
 
-/* Auth input autofill override */
+/* Remove browser outline — custom ring handles it */
+.auth-input:focus { outline: none; }
+
+/* Autofill override — matches dark input bg */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: rgba(255,255,255,0.90);
-  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.07) inset;
+  -webkit-text-fill-color: rgba(255,255,255,0.88);
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.06) inset;
   transition: background-color 5000s ease-in-out 0s;
   caret-color: white;
 }
