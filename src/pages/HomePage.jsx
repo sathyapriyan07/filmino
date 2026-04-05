@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Play, Star, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Gem, Tv, Film } from 'lucide-react'
+import { Play, Star, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, TrendingUp, Gem, Tv, Film, Sparkles, Clock, ThumbsUp } from 'lucide-react'
 import { movieService, seriesService } from '../services/media'
 import { sectionService } from '../services/admin'
 import { supabase } from '../services/supabase'
 import { watchlistService } from '../services/social'
 import { useAuthStore } from '../store/authStore'
+import { usePersonalization } from '../hooks/usePersonalization'
+import { getRecentlyViewed } from '../hooks/useRecentlyViewed'
 import MediaRow from '../components/MediaRow'
+import Top10List from '../components/Top10List'
 import SearchBar from '../components/SearchBar'
 import { Skeleton, Badge, Button } from '../components/ui'
 import { formatYear, getGenreNames, cn } from '../utils/helpers'
@@ -133,6 +136,8 @@ function HeroSkeleton() {
 
 /* ── Main ── */
 export default function HomePage() {
+  const { user } = useAuthStore()
+  const { recommended } = usePersonalization(user?.id)
   const [featured,       setFeatured]       = useState([])
   const [heroIdx,        setHeroIdx]        = useState(0)
   const [sections,       setSections]       = useState([])
@@ -140,20 +145,35 @@ export default function HomePage() {
   const [trendingMovies, setTrendingMovies] = useState([])
   const [trendingSeries, setTrendingSeries] = useState([])
   const [hiddenGems,     setHiddenGems]     = useState([])
+  const [topRated,       setTopRated]       = useState([])
+  const [underrated,     setUnderrated]     = useState([])
+  const [recentlyViewed, setRecentlyViewed] = useState([])
   const [loading,        setLoading]        = useState(true)
   const autoRef = useRef(null)
 
   useEffect(() => { loadData() }, [])
+  useEffect(() => {
+    const rv = getRecentlyViewed()
+    if (rv.length) setRecentlyViewed(rv)
+  }, [])
 
   async function loadData() {
     try {
-      const [movies, series, sects, gems] = await Promise.all([
+      const [movies, series, sects, gems, top, under] = await Promise.all([
         movieService.getTrending(8),
         seriesService.getTrending(8),
         sectionService.getActiveSections(),
         supabase.from('movies')
           .select('id,title,poster,vote_average,release_date,genres,popularity')
           .gte('vote_average', 7.5).lte('popularity', 30)
+          .order('vote_average', { ascending: false }).limit(10),
+        supabase.from('movies')
+          .select('id,title,poster,vote_average,release_date,genres')
+          .gte('vote_average', 8.0)
+          .order('vote_average', { ascending: false }).limit(12),
+        supabase.from('movies')
+          .select('id,title,poster,vote_average,release_date,genres,vote_count')
+          .gte('vote_average', 7.0).lte('vote_count', 500)
           .order('vote_average', { ascending: false }).limit(10),
       ])
 
@@ -165,6 +185,8 @@ export default function HomePage() {
       setTrendingMovies(movies.map(m => ({ ...m, _type: 'movie' })))
       setTrendingSeries(series.map(s => ({ ...s, _type: 'series' })))
       setHiddenGems((gems.data || []).map(m => ({ ...m, _type: 'movie' })))
+      setTopRated((top.data || []).map(m => ({ ...m, _type: 'movie' })))
+      setUnderrated((under.data || []).map(m => ({ ...m, _type: 'movie' })))
       setSections(sects)
 
       const mediaMap = {}
@@ -271,10 +293,31 @@ export default function HomePage() {
                 items={trendingSeries} type="series" viewAllHref="/series"
               />
             )}
+            {topRated.length > 0 && (
+              <Top10List items={topRated} type="movie" title="Top 10 Movies" />
+            )}
             {hiddenGems.length > 0 && (
               <MediaRow
                 title={<span className="flex items-center gap-2"><Gem className="h-5 w-5 text-amber-500" />Hidden Gems</span>}
                 items={hiddenGems} type="movie"
+              />
+            )}
+            {underrated.length > 0 && (
+              <MediaRow
+                title={<span className="flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-emerald-500" />Underrated Picks</span>}
+                items={underrated} type="movie"
+              />
+            )}
+            {recentlyViewed.length > 0 && (
+              <MediaRow
+                title={<span className="flex items-center gap-2"><Clock className="h-5 w-5 text-sky-400" />Recently Viewed</span>}
+                items={recentlyViewed}
+              />
+            )}
+            {recommended.length > 0 && (
+              <MediaRow
+                title={<span className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Recommended for You</span>}
+                items={recommended} type="movie"
               />
             )}
 

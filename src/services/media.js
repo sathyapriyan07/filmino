@@ -39,12 +39,34 @@ export const movieService = {
     return data
   },
 
-  async getSimilar(movieId, genres, limit = 10) {
+  async getSimilar(movieId, genres = [], limit = 12) {
+    // Try genre-matched first
+    if (genres?.length) {
+      const { data } = await supabase
+        .from('movies')
+        .select('id,title,poster,vote_average,release_date,genres')
+        .neq('id', movieId)
+        .contains('genres', JSON.stringify([{ name: genres[0] }]))
+        .order('vote_average', { ascending: false })
+        .limit(limit)
+      if (data?.length) return data
+    }
     const { data, error } = await supabase
       .from('movies')
       .select('id,title,poster,vote_average,release_date,genres')
       .neq('id', movieId)
       .order('popularity', { ascending: false })
+      .limit(limit)
+    if (error) throw error
+    return data
+  },
+
+  async getTopRated(limit = 12) {
+    const { data, error } = await supabase
+      .from('movies')
+      .select('id,title,poster,vote_average,release_date,genres')
+      .gte('vote_average', 8.0)
+      .order('vote_average', { ascending: false })
       .limit(limit)
     if (error) throw error
     return data
