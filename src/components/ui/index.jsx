@@ -1,43 +1,52 @@
 import { cn } from '../../utils/helpers'
 
+/* ─────────────────────────────────────────
+   BUTTON
+───────────────────────────────────────── */
 export function Button({ className, variant = 'default', size = 'default', children, ...props }) {
+  const base = 'inline-flex items-center justify-center font-medium transition-all duration-200 ease-smooth focus-ring disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97] select-none'
+
   const variants = {
-    default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-sm hover:shadow-glow',
-    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-    outline: 'border border-border bg-transparent hover:bg-accent hover:text-accent-foreground',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-    ghost: 'hover:bg-accent hover:text-accent-foreground',
-    glass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20',
-    'glass-dark': 'bg-black/30 backdrop-blur-md border border-white/10 text-white hover:bg-black/50',
-    link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
+    default:     'bg-primary text-primary-foreground hover:brightness-110 shadow-glow-xs hover:shadow-glow-sm rounded-xl',
+    destructive: 'bg-destructive text-destructive-foreground hover:brightness-110 rounded-xl',
+    outline:     'border border-border/80 bg-transparent hover:bg-accent text-foreground rounded-xl',
+    secondary:   'bg-secondary/70 text-secondary-foreground hover:bg-secondary rounded-xl',
+    ghost:       'bg-transparent hover:bg-accent text-foreground rounded-xl',
+    glass:       'glass text-white hover:bg-white/15 rounded-xl',
+    'glass-dark':'glass-dark text-white hover:bg-black/50 rounded-xl',
+    link:        'text-primary hover:text-primary/80 underline-offset-4 hover:underline p-0 h-auto rounded-none',
   }
+
   const sizes = {
-    default: 'h-10 px-5 py-2 text-sm',
-    sm: 'h-8 px-3 text-xs rounded-lg',
-    lg: 'h-12 px-8 text-base',
-    xl: 'h-14 px-10 text-base',
-    icon: 'h-10 w-10',
-    'icon-sm': 'h-8 w-8',
-    'icon-lg': 'h-12 w-12',
+    xs:       'h-7 px-3 text-xs gap-1.5',
+    sm:       'h-8 px-3.5 text-xs gap-1.5',
+    default:  'h-10 px-5 text-sm gap-2',
+    lg:       'h-11 px-7 text-sm gap-2',
+    xl:       'h-13 px-9 text-base gap-2.5',
+    icon:     'h-10 w-10',
+    'icon-sm':'h-8 w-8',
+    'icon-lg':'h-11 w-11',
   }
+
   return (
-    <button
-      className={cn(
-        'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
-        variants[variant], sizes[size], className
-      )}
-      {...props}
-    >
+    <button className={cn(base, variants[variant], sizes[size], className)} {...props}>
       {children}
     </button>
   )
 }
 
+/* ─────────────────────────────────────────
+   INPUT
+───────────────────────────────────────── */
 export function Input({ className, ...props }) {
   return (
     <input
       className={cn(
-        'flex h-10 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50',
+        'flex h-10 w-full rounded-xl border border-input bg-background/80 px-4 py-2 text-sm',
+        'placeholder:text-muted-foreground/60',
+        'focus:outline-none focus:ring-2 focus:ring-ring/60 focus:border-transparent focus:bg-background',
+        'transition-all duration-200 ease-smooth',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
       {...props}
@@ -45,11 +54,18 @@ export function Input({ className, ...props }) {
   )
 }
 
+/* ─────────────────────────────────────────
+   TEXTAREA
+───────────────────────────────────────── */
 export function Textarea({ className, ...props }) {
   return (
     <textarea
       className={cn(
-        'flex min-h-[80px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50 resize-none',
+        'flex min-h-[88px] w-full rounded-xl border border-input bg-background/80 px-4 py-3 text-sm',
+        'placeholder:text-muted-foreground/60',
+        'focus:outline-none focus:ring-2 focus:ring-ring/60 focus:border-transparent focus:bg-background',
+        'transition-all duration-200 ease-smooth resize-none',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
       {...props}
@@ -57,29 +73,41 @@ export function Textarea({ className, ...props }) {
   )
 }
 
+/* ─────────────────────────────────────────
+   BADGE
+───────────────────────────────────────── */
 export function Badge({ className, variant = 'default', children }) {
   const variants = {
-    default: 'bg-primary/15 text-primary border border-primary/20',
-    secondary: 'bg-secondary text-secondary-foreground border border-border',
-    destructive: 'bg-destructive/15 text-destructive border border-destructive/20',
-    outline: 'border border-border text-foreground',
-    success: 'bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/20',
-    warning: 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20',
-    glass: 'bg-white/15 text-white border border-white/20 backdrop-blur-sm',
+    default:     'bg-primary/12 text-primary',
+    secondary:   'bg-secondary text-secondary-foreground',
+    destructive: 'bg-destructive/12 text-destructive',
+    outline:     'border border-border/80 text-foreground',
+    success:     'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400',
+    warning:     'bg-amber-500/12 text-amber-600 dark:text-amber-400',
+    glass:       'glass text-white',
+    muted:       'bg-muted text-muted-foreground',
   }
   return (
-    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', variants[variant], className)}>
+    <span className={cn(
+      'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide',
+      variants[variant], className
+    )}>
       {children}
     </span>
   )
 }
 
-export function Card({ className, children, hover = false, ...props }) {
+/* ─────────────────────────────────────────
+   CARD
+───────────────────────────────────────── */
+export function Card({ className, children, hover = false, elevated = false, ...props }) {
   return (
     <div
       className={cn(
-        'rounded-2xl border border-border bg-card text-card-foreground',
-        hover && 'transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover cursor-pointer',
+        'rounded-2xl bg-card text-card-foreground',
+        !elevated && 'border border-border/60',
+        elevated && 'bg-card-elevated shadow-card',
+        hover && 'transition-all duration-300 ease-smooth hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer',
         className
       )}
       {...props}
@@ -89,22 +117,41 @@ export function Card({ className, children, hover = false, ...props }) {
   )
 }
 
+/* ─────────────────────────────────────────
+   SKELETON
+───────────────────────────────────────── */
 export function Skeleton({ className }) {
-  return <div className={cn('shimmer rounded-xl bg-muted', className)} />
+  return <div className={cn('shimmer rounded-xl bg-muted/80', className)} />
 }
 
+/* ─────────────────────────────────────────
+   SPINNER
+───────────────────────────────────────── */
 export function Spinner({ className, size = 'md' }) {
-  const sizes = { sm: 'h-4 w-4 border-2', md: 'h-6 w-6 border-2', lg: 'h-10 w-10 border-3' }
+  const sizes = {
+    sm: 'h-4 w-4 border-[1.5px]',
+    md: 'h-5 w-5 border-2',
+    lg: 'h-8 w-8 border-2',
+  }
   return (
-    <div className={cn('animate-spin rounded-full border-muted border-t-primary', sizes[size], className)} />
+    <div className={cn(
+      'animate-spin rounded-full border-muted-foreground/20 border-t-primary',
+      sizes[size], className
+    )} />
   )
 }
 
+/* ─────────────────────────────────────────
+   SELECT
+───────────────────────────────────────── */
 export function Select({ className, children, ...props }) {
   return (
     <select
       className={cn(
-        'flex h-10 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all appearance-none cursor-pointer',
+        'flex h-10 w-full rounded-xl border border-input bg-background/80 px-4 py-2 text-sm',
+        'focus:outline-none focus:ring-2 focus:ring-ring/60 focus:border-transparent',
+        'transition-all duration-200 appearance-none cursor-pointer',
+        'text-foreground',
         className
       )}
       {...props}
@@ -114,18 +161,46 @@ export function Select({ className, children, ...props }) {
   )
 }
 
+/* ─────────────────────────────────────────
+   DIVIDER
+───────────────────────────────────────── */
 export function Divider({ className }) {
-  return <div className={cn('h-px bg-border', className)} />
+  return <div className={cn('h-px bg-border/60', className)} />
 }
 
+/* ─────────────────────────────────────────
+   AVATAR
+───────────────────────────────────────── */
 export function Avatar({ src, name, size = 'md', className }) {
-  const sizes = { sm: 'h-7 w-7 text-xs', md: 'h-9 w-9 text-sm', lg: 'h-12 w-12 text-base', xl: 'h-16 w-16 text-xl' }
+  const sizes = {
+    xs:  'h-6 w-6 text-[10px]',
+    sm:  'h-7 w-7 text-xs',
+    md:  'h-9 w-9 text-sm',
+    lg:  'h-11 w-11 text-base',
+    xl:  'h-14 w-14 text-lg',
+    '2xl': 'h-20 w-20 text-2xl',
+  }
   return (
-    <div className={cn('rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden', sizes[size], className)}>
+    <div className={cn(
+      'rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-border/40',
+      sizes[size], className
+    )}>
       {src
         ? <img src={src} alt={name} className="w-full h-full object-cover" />
-        : <span className="font-bold text-primary">{name?.[0]?.toUpperCase() || '?'}</span>
+        : <span className="font-semibold text-primary">{name?.[0]?.toUpperCase() || '?'}</span>
       }
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────
+   SECTION HEADER
+───────────────────────────────────────── */
+export function SectionHeader({ title, action, className }) {
+  return (
+    <div className={cn('flex items-center justify-between mb-5', className)}>
+      <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
+      {action && <div className="flex items-center gap-2">{action}</div>}
     </div>
   )
 }
