@@ -164,3 +164,20 @@
 
 /* ── Page transition ── */
 .page-enter { animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* ── Auth page ── */
+@keyframes authPanelIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-auth-panel { animation: authPanelIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* Auth input autofill override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.08) inset;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
+}
