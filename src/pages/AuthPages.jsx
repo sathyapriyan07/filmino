@@ -114,14 +114,14 @@ export function InputField({ icon: Icon, error, className, ...props }) {
   return (
     <div className="relative">
       {Icon && (
-        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/28 pointer-events-none z-10" />
+        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/28 pointer-events-none z-10 sm:h-4 sm:w-4 sm:left-3.5" />
       )}
       <input
         className={cn(
-          'auth-input w-full h-12 rounded-xl text-sm text-white',
+          'auth-input w-full h-10 sm:h-12 rounded-xl text-xs sm:text-sm text-white',
           'bg-white/[0.06] border border-white/[0.10]',
           'placeholder:text-white/22',
-          Icon ? 'pl-10 pr-4' : 'px-4',
+          Icon ? 'pl-9 pr-3 sm:pl-10 sm:pr-4' : 'px-3 sm:px-4',
           'focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/40 focus:bg-white/[0.10]',
           'transition-all duration-200',
           'disabled:opacity-40 disabled:cursor-not-allowed',
@@ -141,14 +141,14 @@ function PasswordField({ error, ...props }) {
   const [show, setShow] = useState(false)
   return (
     <div className="relative">
-      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/28 pointer-events-none z-10" />
+      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/28 pointer-events-none z-10 sm:h-4 sm:w-4 sm:left-3.5" />
       <input
         type={show ? 'text' : 'password'}
         className={cn(
-          'auth-input w-full h-12 rounded-xl text-sm text-white',
+          'auth-input w-full h-10 sm:h-12 rounded-xl text-xs sm:text-sm text-white',
           'bg-white/[0.06] border border-white/[0.10]',
           'placeholder:text-white/22',
-          'pl-10 pr-11',
+          'pl-9 pr-10 sm:pl-10 sm:pr-11',
           'focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/40 focus:bg-white/[0.10]',
           'transition-all duration-200',
           'disabled:opacity-40 disabled:cursor-not-allowed',
@@ -161,9 +161,9 @@ function PasswordField({ error, ...props }) {
         tabIndex={-1}
         onClick={() => setShow(v => !v)}
         aria-label={show ? 'Hide password' : 'Show password'}
-        className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center rounded-lg text-white/28 hover:text-white/65 hover:bg-white/[0.07] transition-all duration-150"
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-lg text-white/28 hover:text-white/65 hover:bg-white/[0.07] transition-all duration-150 sm:right-3 sm:h-7 sm:w-7"
       >
-        {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+        {show ? <EyeOff className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
       </button>
     </div>
   )
@@ -174,13 +174,13 @@ function PasswordField({ error, ...props }) {
 ───────────────────────────────────────────────────────── */
 function Field({ label, error, children }) {
   return (
-    <div className="space-y-1.5">
-      <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-[0.09em]">
+    <div className="space-y-1">
+      <label className="block text-[10px] sm:text-[11px] font-semibold text-white/40 uppercase tracking-[0.09em]">
         {label}
       </label>
       {children}
       {error && (
-        <p className="text-[11px] text-red-400/85 flex items-center gap-1 pl-0.5">
+        <p className="text-[10px] sm:text-[11px] text-red-400/85 flex items-center gap-1 pl-0.5">
           <span aria-hidden>⚠</span> {error}
         </p>
       )}
@@ -196,16 +196,12 @@ export function PrimaryButton({ loading, children, className, ...props }) {
     <button
       disabled={loading}
       className={cn(
-        'relative w-full h-12 min-h-[44px] rounded-xl',
-        'font-semibold text-sm text-white',
+        'relative w-full h-10 sm:h-12 min-h-[40px] rounded-xl',
+        'font-semibold text-xs sm:text-sm text-white',
         'flex items-center justify-center gap-2',
-        /* gradient */
         'bg-gradient-to-r from-indigo-500 to-purple-500',
-        /* glow */
         'shadow-[0_0_22px_rgba(99,102,241,0.38)]',
-        /* hover */
         'hover:brightness-110 hover:scale-[1.013] hover:shadow-[0_0_30px_rgba(99,102,241,0.55)]',
-        /* active */
         'active:scale-[0.984]',
         'transition-all duration-200 ease-out',
         'focus:outline-none focus:ring-2 focus:ring-indigo-400/50 focus:ring-offset-2 focus:ring-offset-black/40',
@@ -215,7 +211,7 @@ export function PrimaryButton({ loading, children, className, ...props }) {
       {...props}
     >
       {loading
-        ? <><Loader2 className="h-4 w-4 animate-spin" /><span>Loading…</span></>
+        ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /><span>Loading…</span></>
         : children
       }
     </button>
@@ -230,10 +226,10 @@ function ErrorBanner({ message }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 bg-red-500/[0.11] border border-red-500/22 text-red-300 text-xs rounded-xl px-3.5 py-3 animate-fade-up mb-5"
+      className="flex items-start gap-2 bg-red-500/[0.11] border border-red-500/22 text-red-300 text-[11px] rounded-xl px-3 py-2 animate-fade-up mb-3"
     >
-      <span className="flex-shrink-0 mt-px" aria-hidden>⚠</span>
-      <span className="leading-relaxed">{message}</span>
+      <span className="flex-shrink-0" aria-hidden>⚠</span>
+      <span className="leading-snug">{message}</span>
     </div>
   )
 }
@@ -361,7 +357,7 @@ export function AuthMobileLayout({ children }) {
         </div>
 
         {/* Form content — centred, NO overflow scroll */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-12 py-5 md:py-12 overflow-hidden">
+        <div className="flex-1 flex flex-col justify-center px-5 sm:px-8 md:px-10 lg:px-12 py-4 sm:py-6 md:py-12 overflow-hidden">
           {children}
         </div>
       </div>
@@ -413,17 +409,17 @@ export function LoginPage() {
     <AuthMobileLayout>
       <AuthForm>
         {/* Heading */}
-        <div className="mb-4 auth-card-item" style={{ animationDelay: '60ms' }}>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+        <div className="mb-3 auth-card-item" style={{ animationDelay: '60ms' }}>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
             Welcome back
           </h1>
-          <p className="text-white/38 text-sm mt-1">Sign in to continue to Filmino</p>
+          <p className="text-white/38 text-xs sm:text-sm mt-1">Sign in to continue to Filmino</p>
         </div>
 
         <ErrorBanner message={error} />
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
+          <div className="space-y-2 sm:space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
 
             <Field label="Email address">
               <InputField
@@ -448,20 +444,19 @@ export function LoginPage() {
               />
             </Field>
 
-            {/* Remember + Forgot */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer group select-none">
+              <label className="flex items-center gap-1.5 cursor-pointer group select-none">
                 <input
                   type="checkbox"
-                  className="h-3.5 w-3.5 rounded border-white/20 bg-white/[0.06] accent-indigo-500 cursor-pointer"
+                  className="h-3 w-3 sm:h-3.5 sm:w-3.5 rounded border-white/20 bg-white/[0.06] accent-indigo-500 cursor-pointer"
                 />
-                <span className="text-xs text-white/32 group-hover:text-white/52 transition-colors">
+                <span className="text-[11px] sm:text-xs text-white/32 group-hover:text-white/52 transition-colors">
                   Remember me
                 </span>
               </label>
               <button
                 type="button"
-                className="text-xs text-white/32 hover:text-indigo-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                className="text-[11px] sm:text-xs text-white/32 hover:text-indigo-400 transition-colors duration-200"
               >
                 Forgot password?
               </button>
@@ -469,19 +464,19 @@ export function LoginPage() {
 
             <div>
               <PrimaryButton loading={loading} type="submit">
-                {!loading && <>Sign In <ArrowRight className="h-4 w-4" /></>}
+                {!loading && <>Sign In <ArrowRight className="h-3.5 w-3.5" /></>}
               </PrimaryButton>
             </div>
           </div>
         </form>
 
-        <div className="flex items-center gap-3 my-4">
+        <div className="flex items-center gap-3 my-3">
           <div className="flex-1 h-px bg-white/[0.07]" />
-          <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
+          <span className="text-[9px] sm:text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
           <div className="flex-1 h-px bg-white/[0.07]" />
         </div>
 
-        <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
+        <p className="text-center text-[11px] sm:text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Don't have an account?{' '}
           <Link
             to="/signup"
@@ -569,17 +564,17 @@ export function SignupPage() {
     <AuthMobileLayout>
       <AuthForm>
         {/* Heading */}
-        <div className="mb-4 auth-card-item" style={{ animationDelay: '60ms' }}>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+        <div className="mb-3 auth-card-item" style={{ animationDelay: '60ms' }}>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
             Create account
           </h1>
-          <p className="text-white/38 text-sm mt-1">Join Filmino and start tracking</p>
+          <p className="text-white/38 text-xs sm:text-sm mt-1">Join Filmino and start tracking</p>
         </div>
 
         <ErrorBanner message={error} />
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
+          <div className="space-y-2 sm:space-y-3 auth-card-item" style={{ animationDelay: '130ms' }}>
 
             <Field label="Username" error={errors.username}>
               <InputField
@@ -636,13 +631,13 @@ export function SignupPage() {
           </div>
         </form>
 
-        <div className="flex items-center gap-3 my-4">
+        <div className="flex items-center gap-3 my-3">
           <div className="flex-1 h-px bg-white/[0.07]" />
-          <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
+          <span className="text-[9px] sm:text-[10px] font-semibold text-white/18 uppercase tracking-[0.14em]">or</span>
           <div className="flex-1 h-px bg-white/[0.07]" />
         </div>
 
-        <p className="text-center text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
+        <p className="text-center text-[11px] sm:text-sm text-white/32 auth-card-item" style={{ animationDelay: '220ms' }}>
           Already have an account?{' '}
           <Link
             to="/login"
